@@ -1,7 +1,7 @@
-# admin.py for Class model
 from django.contrib import admin
-from .models import Class
+from school_class.models import Class
 
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'class_teacher')
+    search_fields = ('name',)

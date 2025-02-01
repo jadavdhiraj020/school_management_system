@@ -1,7 +1,8 @@
-# admin.py for Teacher model
 from django.contrib import admin
-from .models import Teacher
+from teachers.models import Teacher
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'email', 'age', 'joining_date')
+    search_fields = ('name', 'email')
+    ordering = ('name',)
