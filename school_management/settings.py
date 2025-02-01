@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-*(jtva6@7(v@t_229^r19pccs1w44o_9b$*j@@xk--cpsbsiu6"
+SECRET_KEY = "django-insecure-*(java6@7(v@t_229^r19pacs1w44o_9b$*j@@xk--cpsbsiu6"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -83,9 +83,13 @@ WSGI_APPLICATION = "school_management.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'SCHOOL_MANAGEMENT_DATABASE',
+        'USER': 'dhiraj',  # or 'dhiraj' if you created a new user
+        'PASSWORD': 'new@1235',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
