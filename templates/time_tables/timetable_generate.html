@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load dict_extras %}
+
+{% block title %}Timetable for {{ selected_class.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row mb-4">
+    <div class="col text-center">
+      <h1>Timetable for {{ selected_class.name }}</h1>
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger text-center">{{ error }}</div>
+  {% endif %}
+
+  {% if message %}
+    <div class="alert alert-success text-center">{{ message }}</div>
+  {% endif %}
+
+  <div class="text-right mb-3">
+    <a href="{% url 'timetable_download' %}?class_name={{ selected_class.name }}" class="btn btn-outline-primary">
+      <i class="fas fa-download"></i> Download Timetable
+    </a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover shadow-sm">
+      <thead class="thead-dark">
+        <tr>
+          <th>Time Slot</th>
+          {% for day in days %}
+            <th class="text-center">{{ day }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for ts in timeslots %}
+          <tr>
+            <td class="font-weight-bold">
+              {{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }}
+              {% if ts.is_break %}
+                <br><small class="text-muted">Break</small>
+              {% endif %}
+            </td>
+            {% if ts.is_break %}
+              <td colspan="{{ days|length }}" class="text-center text-muted">
+                {% with day_data=timetable|get_item:days.0 %}
+                  {% with cell=day_data|get_item:ts.id %}
+                    {{ cell.display }}
+                  {% endwith %}
+                {% endwith %}
+              </td>
+            {% else %}
+              {% for day in days %}
+                <td class="text-center">
+                  {% with day_data=timetable|get_item:day %}
+                    {% with cell=day_data|get_item:ts.id %}
+                      {% if cell %}
+                        <div class="text-primary font-weight-bold">{{ cell.subject }}</div>
+                        <div class="text-secondary"><small>{{ cell.teacher }}</small></div>
+                      {% else %}
+                        <span class="text-muted">--</span>
+                      {% endif %}
+                    {% endwith %}
+                  {% endwith %}
+                </td>
+              {% endfor %}
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
