@@ -9,7 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Teacher --> Subject --> Class --> Student --> TimeSlot --> Timetable
+# Teacher --> Subject --> Student --> Class --> TimeSlot --> Timetable
 
 class Command(BaseCommand):
     help = "Delete all dummy data generated in the database"

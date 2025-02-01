@@ -54,7 +54,7 @@ class Command(BaseCommand):
             name = fake.name()
             email = fake.unique.email()
             age = random.randint(min_age, max_age)
-            phone = fake.phone_number()
+            phone = fake.phone_number()[:15]
             address = fake.address()
             joining_date = fake.date_between(start_date="-10y", end_date=date.today())
 
