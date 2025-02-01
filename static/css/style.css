@@ -1,0 +1,44 @@
+.step-links a {
+  color: blue;
+  text-decoration: underline;
+  margin: 0 5px;
+}
+.step-links .current {
+  font-weight: bold;
+}
+
+.form-container {
+  margin-top: 50px;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group label {
+  font-weight: bold;
+}
+
+.form-control {
+  border-radius: 5px;
+  padding: 15px;
+  font-size: 16px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  border-radius: 5px;
+}
+
+.btn-primary:hover {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.form-error {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+}

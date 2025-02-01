@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Classes List{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="mb-4 text-center">Classes</h1>
+  
+  <!-- Add Class Button -->
+  <a href="{% url 'class_create' %}" class="btn btn-primary mb-3">
+    <i class="fas fa-plus-circle"></i> Add Class
+  </a>
+  
+  <!-- Class List -->
+  <ul class="list-group shadow-lg">
+    {% for class in classes %}
+    <li class="list-group-item d-flex justify-content-between align-items-center hover-shadow">
+      <a href="{% url 'class_detail' class.id %}" class="text-dark text-decoration-none">
+        <strong>{{ class.name }}</strong>
+      </a>
+      <div class="d-flex">
+        <a href="{% url 'class_update' class.id %}" class="btn btn-sm btn-warning me-2">
+          <i class="fas fa-edit"></i> Edit
+        </a>
+        <a href="{% url 'class_delete' class.id %}" class="btn btn-sm btn-danger">
+          <i class="fas fa-trash-alt"></i> Delete
+        </a>
+      </div>
+    </li>
+    {% empty %}
+    <li class="list-group-item">No classes available.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

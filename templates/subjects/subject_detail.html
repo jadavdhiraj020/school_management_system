@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Subject Detail{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white text-center">
+      <h3>{{ subject.name }}</h3>
+    </div>
+    <div class="card-body">
+      <!-- Subject Information -->
+      <p><strong>Subject Name:</strong> {{ subject.name }}</p>
+      
+      <!-- Classes -->
+      <p><strong>Classes:</strong></p>
+      {% if subject.subject_class_subjects.exists %}
+      <ul>
+        {% for cts in subject.subject_class_subjects.all %}
+          <li>
+            <a href="{% url 'class_detail' cts.class_obj.id %}">{{ cts.class_obj.name }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <p>No classes assigned.</p>
+      {% endif %}
+      
+      <!-- Teachers -->
+      <p><strong>Teachers:</strong></p>
+      {% if subject.subject_class_subjects.exists %}
+      <ul>
+        {% for cts in subject.subject_class_subjects.all %}
+          <li>
+            <a href="{% url 'teacher_detail' cts.teacher.id %}">{{ cts.teacher.name }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <p>No teachers assigned.</p>
+      {% endif %}
+      
+      <!-- Back Button -->
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'subject_list' %}" class="btn btn-outline-primary">Back to List</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

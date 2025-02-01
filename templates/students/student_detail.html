@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Student Detail{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="display-4">{{ student.name }}</h1>
+  
+  <!-- Student Info -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <p><strong>Email:</strong> {{ student.email }}</p>
+      <p><strong>Age:</strong> {{ student.age }}</p>
+      <p><strong>Phone:</strong> {{ student.phone }}</p>
+    </div>
+    <div class="col-md-6">
+      <p><strong>Address:</strong> {{ student.address }}</p>
+      <p><strong>Enrollment Date:</strong> {{ student.enrollment_date }}</p>
+    </div>
+  </div>
+
+  <!-- Enrolled Classes -->
+  <div class="mb-3">
+    <p><strong>Enrolled Classes:</strong></p>
+    {% if student.class_obj %}
+      <p>{{ student.class_obj.name }}</p>
+    {% else %}
+      <p>No classes enrolled.</p>
+    {% endif %}
+  </div>
+  
+  <!-- Back Button -->
+  <a href="{% url 'student_list' %}" class="btn btn-primary mt-3">Back to List</a>
+</div>
+{% endblock %}

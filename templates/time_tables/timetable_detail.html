@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Timetable Detail{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white text-center">
+      <h3>Timetable Detail</h3>
+    </div>
+    <div class="card-body">
+      <p><strong>Class:</strong> {{ timetable.class_model.name }}</p>
+      <p><strong>Subject:</strong> {{ timetable.subject.name }}</p>
+      <p><strong>Teacher:</strong> {{ timetable.teacher.name }}</p>
+      <p><strong>Day:</strong> {{ timetable.day_of_week }}</p>
+      <p><strong>Time Slot:</strong> {{ timetable.time_slot }}</p>
+      
+      <!-- Back Button -->
+      <div class="text-center mt-4">
+        <a href="{% url 'timetable_list' %}" class="btn btn-outline-primary">
+          <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

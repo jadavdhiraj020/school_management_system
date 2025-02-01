@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block title %}{% if object %}Update{% else %}Create{% endif %} Teacher{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>{% if object %}Update{% else %}Create{% endif %} Teacher</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Form Fields with custom classes -->
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Name:</label>
+                            {{ form.name|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email:</label>
+                            {{ form.email|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.age.id_for_label }}" class="form-label">Age:</label>
+                            {{ form.age|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">Phone:</label>
+                            {{ form.phone|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">Address:</label>
+                            {{ form.address|add_class:"form-control" }}
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-success w-48">
+                                {% if object %}Update{% else %}Create{% endif %} Teacher
+                            </button>
+
+                            <a href="{% url 'teacher_list' %}" class="btn btn-secondary w-48">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    /* Ensure the Address field has a fixed height */
+    .form-control[name="address"] {
+        height: 120px;  /* Adjust the height as per your design */
+        resize: none;   /* Disable manual resizing by the user */
+    }
+</style>
+{% endblock %}

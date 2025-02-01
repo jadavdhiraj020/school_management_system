@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block title %}{% if object %}Update{% else %}Create{% endif %} Subject {% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>{% if object %}Update{% else %}Create{% endif %} Subject</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Subject Name -->
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Subject Name:</label>
+                            {{ form.name|add_class:"form-control" }}
+                            <small class="form-text text-muted">Enter the name of the subject (e.g., Mathematics).</small>
+                        </div>
+
+                        <!-- Classes -->
+                        <div class="mb-3">
+                            <label class="form-label">Classes:</label>
+                            <div class="form-check">
+                                {% for class in form.classes %}
+                                    <div class="mb-1">
+                                        <label class="form-check-label">
+                                            {{ class.tag }} {{ class.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <small class="form-text text-muted">Select classes associated with this subject.</small>
+                        </div>
+
+                        <!-- Teachers -->
+                        <div class="mb-3">
+                            <label class="form-label">Teachers:</label>
+                            <div class="form-check">
+                                {% for teacher in form.teachers %}
+                                    <div class="mb-1">
+                                        <label class="form-check-label">
+                                            {{ teacher.tag }} {{ teacher.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <small class="form-text text-muted">Select teachers who teach this subject.</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-success w-48">
+                                {% if object %}Update{% else %}Create{% endif %} Subject
+                            </button>
+                            <a href="{% url 'subject_list' %}" class="btn btn-secondary w-48">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+    /* Custom styles for checkboxes */
+    .form-check {
+        margin-bottom: 0.5rem;
+    }
+    .form-check-label {
+        margin-left: 0.5rem;
+    }
+</style>
+{% endblock %}
