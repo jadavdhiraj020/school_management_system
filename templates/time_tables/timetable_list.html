@@ -1,54 +1,106 @@
 {% extends "base.html" %}
+{% load dict_extras %}
+
 
 {% block title %}Timetable List{% endblock %}
 
+{% block extra_css %}
+  <style>
+    /* Basic styling for the timetable grid */
+    .table td, .table th {
+      text-align: center;
+      padding: 10px;
+    }
+    .table th {
+      background-color: #f8f9fa;
+      font-weight: bold;
+    }
+    .table td {
+      border: 1px solid #dee2e6;
+    }
+    .time-slot-header {
+      background-color: #f0f8ff;
+      font-weight: bold;
+    }
+    .day-column {
+      background-color: #f0f8ff;
+      font-weight: bold;
+    }
+    .subject-teacher {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .no-entry {
+      color: gray;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-  <h1 class="mb-4 text-center">Timetables</h1>
-  
+  <h2 class="text-center text-primary mb-4">Timetable List</h2>
+
   <!-- Add Timetable Button -->
-  <a href="{% url 'timetable_create' %}" class="btn btn-primary mb-3">
-    <i class="fas fa-plus-circle"></i> Add Timetable Entry
-  </a>
-  
-  <!-- Timetable List -->
-  <table class="table table-striped table-hover shadow-lg">
-    <thead class="thead-dark">
-      <tr>
-        <th scope="col">Class</th>
-        <th scope="col">Subject</th>
-        <th scope="col">Teacher</th>
-        <th scope="col">Day</th>
-        <th scope="col">Time Slot</th>
-        <th scope="col">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for timetable in timetables %}
-      <tr>
-        <td>{{ timetable.class_model.name }}</td>
-        <td>{{ timetable.subject.name }}</td>
-        <td>{{ timetable.teacher.name }}</td>
-        <td>{{ timetable.day_of_week }}</td>
-        <td>{{ timetable.time_slot }}</td>
-        <td>
-          <a href="{% url 'timetable_detail' timetable.id %}" class="btn btn-sm btn-info">
-            <i class="fas fa-eye"></i>
-          </a>
-          <a href="{% url 'timetable_update' timetable.id %}" class="btn btn-sm btn-warning">
-            <i class="fas fa-edit"></i>
-          </a>
-          <a href="{% url 'timetable_delete' timetable.id %}" class="btn btn-sm btn-danger">
-            <i class="fas fa-trash-alt"></i>
-          </a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="6" class="text-center">No timetables available.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container mb-3">
+    <a href="{% url 'timetable_create' %}" class="btn btn-primary">
+      <i class="fas fa-plus-circle"></i> Add Timetable Entry
+    </a>
+  </div>
+
+  <!-- Timetable Grid -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th class="time-slot-header">Time Slot</th>
+          {% for day in days %}
+            <th class="day-column">{{ day }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for ts in timeslots %}
+          <tr>
+            <td>{{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }}</td>
+            {% for day in days %}
+              <td>
+                {% with timetable_entry=timetables|get_item:day %}
+                  {% with cell=timetable_entry|get_item:ts.id %}
+                    {% if cell %}
+                      <span class="subject-teacher">
+                        <strong>{{ cell.subject.name }}</strong>
+                      </span>
+                      <span class="subject-teacher">
+                        <small>{{ cell.teacher.name }}</small>
+                      </span>
+                    {% else %}
+                      <span class="no-entry">--</span>
+                    {% endif %}
+                  {% endwith %}
+                {% endwith %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    // Auto-hide alert messages after 3 seconds.
+    document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(function() {
+        document.querySelectorAll('.alert').forEach(function(alert) {
+          alert.style.transition = 'opacity 0.5s ease';
+          alert.style.opacity = '0';
+          setTimeout(function() {
+            alert.remove();
+          }, 500);
+        });
+      }, 3000);
+    });
+  </script>
 {% endblock %}

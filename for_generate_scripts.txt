@@ -1,102 +1,36 @@
-"Create a Django class-based view that generates a comprehensive school timetable using Google's OR-Tools CP-SAT solver. The view should handle all necessary data, including teachers, students, subjects, timeslots, days, and additional scheduling details. The timetable must be rendered as an HTML table where:
+make it dynamic means users enter class and after it process and auto generated timetables and if some error or issues are encountered then fix it also and generated complete updated code
 
-Rows represent timeslots (e.g., each period in a school day).
-Columns represent days (e.g., Monday to Friday).
-Each cell displays the scheduled subject and the assigned teacher (and optionally other relevant data).
-The implementation should include the following steps:
+from django.urls import path
+from . import views
 
-Data Setup:
+urlpatterns = [
+    # CRUD URLs for Timetable entries
+    path('', views.TimetableListView.as_view(), name='timetable_list'),
+    path('add/', views.TimetableCreateView.as_view(), name='timetable_create'),
+    path('<int:pk>/', views.TimetableDetailView.as_view(), name='timetable_detail'),
+    path('<int:pk>/edit/', views.TimetableUpdateView.as_view(), name='timetable_update'),
+    path('<int:pk>/delete/', views.TimetableDeleteView.as_view(), name='timetable_delete'),
 
-Define data for teachers, students, subjects, timeslots, and days.
-Include all necessary details to ensure each subject is scheduled with a teacher and a student group.
-Modeling with OR-Tools:
+    # CRUD URLs for TimeSlots
+    path('timeslots/', views.TimeSlotListView.as_view(), name='timeslot_list'),
+    path('timeslots/add/', views.TimeSlotCreateView.as_view(), name='timeslot_create'),
+    path('timeslots/<int:pk>/', views.TimeSlotDetailView.as_view(), name='timeslot_detail'),
+    path('timeslots/<int:pk>/edit/', views.TimeSlotUpdateView.as_view(), name='timeslot_update'),
+    path('timeslots/<int:pk>/delete/', views.TimeSlotDeleteView.as_view(), name='timeslot_delete'),
 
-Use OR-Tools CP-SAT solver to define decision variables representing whether a given subject is taught by a specific teacher at a certain timeslot and day.
-Set constraints to ensure:
-Each class (subject/student group) is scheduled exactly once per day or week as needed.
-No teacher is scheduled for more than one class at the same timeslot.
-Other constraints such as room availability, teacher preferences, or student group restrictions can be added.
-Solving and Processing:
+    # New scheduling view using OR-Tools (generates & saves timetable)
+    path('generate/', views.TimetableGenerateView.as_view(), name='timetable_generate'),
 
-Solve the model.
-Process the solution to create a data structure that maps days and timeslots to the corresponding subject and teacher.
-Rendering the Timetable:
-
-Pass the timetable data to the template context.
-Render an HTML table where:
-The table's rows correspond to timeslots.
-The columns correspond to days.
-Each cell displays the subject and teacher assigned for that timeslot and day.
-Comments and Clarity:
-
-Include brief comments throughout the code to explain major steps.
-Ensure the code is modular and easy to extend for additional constraints or data elements.
-The final output should be a complete example that integrates the OR-Tools scheduling logic with a Django class-based view and a corresponding template that displays the timetable in the specified HTML table format."
+    # New download URL (CSV download example)
+    path('download/', views.TimetableDownloadView.as_view(), name='timetable_download'),
+]
 
 
-All data which i have:
-Start time End time Is break
-	10:30 a.m.	11:30 a.m.	False
-	11:30 a.m.	12:30 p.m.	False
-	12:30 p.m.	1 p.m.	True
-	1 p.m.	2 p.m.	False
-	2 p.m.	3 p.m.	False
-	3 p.m.	3:15 p.m.	True
-	3:15 p.m.	4:15 p.m.	False
-	4:15 p.m.	5:15 p.m.	False
-
-Class
-	12th Science B Groups
-	12th Science A Groups
-
-Subject
-	Computer
-	Biology
-	Mathematics
-	Physics
-	English
-	Chemistry
-
-Name Email Age Joining date
-	Bradley Brady	cruzcorey@example.net	41	Feb. 1, 2025
-	Christopher Hernandez	gschmitt@example.com	57	Feb. 1, 2025
-	Collin Lopez	thomas12@example.org	56	Feb. 1, 2025
-	Jeanne Green	kmassey@example.org	39	Feb. 1, 2025
-	Joshua Hernandez	zhernandez@example.net	46	Feb. 1, 2025
-	Kevin Ward	kellywoods@example.org	50	Feb. 1, 2025
-	Leslie Mcclain	jenniferhughes@example.com	51	Feb. 1, 2025
-	Norma Fisher	tammy76@example.com	41	Feb. 1, 2025
-	Ruth Newman	wigginsjoshua@example.org	27	Feb. 1, 2025
-	Savannah Robinson	johnsoncynthia@example.net	46	Feb. 1, 2025
-	Sheri Burnett	amymccarty@example.org	48	Feb. 1, 2025
-	Thomas Moon	cortezraymond@example.net	39	Feb. 1, 2025
-
-
-
-Class_obj Teacher Subject
-	12th Science B Groups	Leslie Mcclain	Biology
-	12th Science B Groups	Jeanne Green	Biology
-	12th Science B Groups	Bradley Brady	Chemistry
-	12th Science A Groups	Joshua Hernandez	Chemistry
-	12th Science B Groups	Christopher Hernandez	Computer
-	12th Science A Groups	Thomas Moon	Computer
-	12th Science B Groups	Sheri Burnett	English
-	12th Science A Groups	Collin Lopez	English
-	12th Science A Groups	Savannah Robinson	Mathematics
-	12th Science A Groups	Ruth Newman	Mathematics
-	12th Science B Groups	Norma Fisher	Physics
-	12th Science A Groups	Kevin Ward	Physics
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
-    ListView,
-    DetailView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-    TemplateView,
-    View,
+    ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView, View
 )
 from django.db import transaction
 from .models import Timetable, TimeSlot
@@ -113,19 +47,16 @@ from django.utils.timezone import now
 # CRUD Views (existing, unchanged)
 ###############################################
 
-
 class TimetableListView(ListView):
     model = Timetable
     template_name = "time_tables/timetable_list.html"
     context_object_name = "timetables"
-    ordering = ["day_of_week", "time_slot__start_time"]
-
+    ordering = ['day_of_week', 'time_slot__start_time']
 
 class TimetableDetailView(DetailView):
     model = Timetable
     template_name = "time_tables/timetable_detail.html"
     context_object_name = "timetable"
-
 
 class TimetableCreateView(CreateView):
     model = Timetable
@@ -133,13 +64,11 @@ class TimetableCreateView(CreateView):
     template_name = "time_tables/timetable_form.html"
     success_url = reverse_lazy("timetable_list")
 
-
 class TimetableUpdateView(UpdateView):
     model = Timetable
     form_class = TimetableForm
     template_name = "time_tables/timetable_form.html"
     success_url = reverse_lazy("timetable_list")
-
 
 class TimetableDeleteView(DeleteView):
     model = Timetable
@@ -147,19 +76,16 @@ class TimetableDeleteView(DeleteView):
     context_object_name = "timetable"
     success_url = reverse_lazy("timetable_list")
 
-
 class TimeSlotListView(ListView):
     model = TimeSlot
     template_name = "time_tables/timeslot_list.html"
     context_object_name = "timeslots"
     ordering = ["start_time"]
 
-
 class TimeSlotDetailView(DetailView):
     model = TimeSlot
     template_name = "time_tables/timeslot_detail.html"
     context_object_name = "timeslot"
-
 
 class TimeSlotCreateView(CreateView):
     model = TimeSlot
@@ -167,13 +93,11 @@ class TimeSlotCreateView(CreateView):
     template_name = "time_tables/timeslot_form.html"
     success_url = reverse_lazy("timeslot_list")
 
-
 class TimeSlotUpdateView(UpdateView):
     model = TimeSlot
     form_class = TimeSlotForm
     template_name = "time_tables/timeslot_form.html"
     success_url = reverse_lazy("timeslot_list")
-
 
 class TimeSlotDeleteView(DeleteView):
     model = TimeSlot
@@ -192,11 +116,11 @@ class TimetableGenerateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        target_class_name = self.request.GET.get("class_name", "12th Science B Groups")
+        target_class_name = self.request.GET.get('class_name', '12th Science A Groups')
         try:
             selected_class = Class.objects.get(name=target_class_name)
         except Class.DoesNotExist:
-            context["error"] = f"Class '{target_class_name}' not found."
+            context['error'] = f"Class '{target_class_name}' not found."
             return context
 
         # 6-day week: Monday to Saturday.
@@ -210,16 +134,14 @@ class TimetableGenerateView(TemplateView):
             assignments_qs = ClassTeacherSubject.objects.filter(class_obj=cls)
             assignments = []
             for cts in assignments_qs:
-                assignments.append(
-                    {
-                        "subject_id": cts.subject.id,
-                        "teacher_id": cts.teacher.id,
-                        "subject_name": cts.subject.name,
-                        "teacher_name": cts.teacher.name,
-                    }
-                )
+                assignments.append({
+                    "subject_id": cts.subject.id,
+                    "teacher_id": cts.teacher.id,
+                    "subject_name": cts.subject.name,
+                    "teacher_name": cts.teacher.name,
+                })
             if len(assignments) != len(lesson_timeslots):
-                context["error"] = (
+                context['error'] = (
                     f"Class {cls.name} has {len(assignments)} assignments but "
                     f"{len(lesson_timeslots)} lesson slots per day."
                 )
@@ -236,16 +158,11 @@ class TimetableGenerateView(TemplateView):
             for day in days:
                 day_vars = []
                 for slot_index in range(n_assignments):
-                    var = model.NewIntVar(
-                        0, n_assignments - 1, f"cls{cls.id}_{day}_slot{slot_index}"
-                    )
+                    var = model.NewIntVar(0, n_assignments - 1, f"cls{cls.id}_{day}_slot{slot_index}")
                     decision_vars[(cls.id, day, slot_index)] = var
                     day_vars.append(var)
-                    t_var = model.NewIntVar(
-                        min(teacher_ids_list),
-                        max(teacher_ids_list),
-                        f"cls{cls.id}_{day}_slot{slot_index}_teacher",
-                    )
+                    t_var = model.NewIntVar(min(teacher_ids_list), max(teacher_ids_list),
+                                            f"cls{cls.id}_{day}_slot{slot_index}_teacher")
                     teacher_vars[(cls.id, day, slot_index)] = t_var
                     model.AddElement(var, teacher_ids_list, t_var)
                 model.AddAllDifferent(day_vars)
@@ -254,15 +171,13 @@ class TimetableGenerateView(TemplateView):
             for slot_index in range(len(lesson_timeslots)):
                 teacher_vars_this_slot = []
                 for cls in classes:
-                    teacher_vars_this_slot.append(
-                        teacher_vars[(cls.id, day, slot_index)]
-                    )
+                    teacher_vars_this_slot.append(teacher_vars[(cls.id, day, slot_index)])
                 model.AddAllDifferent(teacher_vars_this_slot)
 
         solver = cp_model.CpSolver()
         status = solver.Solve(model)
         if status not in [cp_model.OPTIMAL, cp_model.FEASIBLE]:
-            context["error"] = "No feasible timetable found."
+            context['error'] = "No feasible timetable found."
             return context
 
         timetable_solution = {cls.id: {day: {} for day in days} for cls in classes}
@@ -273,7 +188,7 @@ class TimetableGenerateView(TemplateView):
                     for day in days:
                         timetable_solution[cls.id][day][ts.id] = {
                             "is_break": True,
-                            "display": f"Break ({ts.start_time.strftime('%I:%M %p')} - {ts.end_time.strftime('%I:%M %p')})",
+                            "display": f"Break ({ts.start_time.strftime('%I:%M %p')} - {ts.end_time.strftime('%I:%M %p')})"
                         }
                 else:
                     for day in days:
@@ -300,21 +215,17 @@ class TimetableGenerateView(TemplateView):
                                 time_slot=ts,
                                 day_of_week=day,
                                 subject=None,
-                                teacher=None,
+                                teacher=None
                             )
                         else:
-                            subject = Subject.objects.filter(
-                                name=cell["subject"]
-                            ).first()
-                            teacher = Teacher.objects.filter(
-                                name=cell["teacher"]
-                            ).first()
+                            subject = Subject.objects.filter(name=cell["subject"]).first()
+                            teacher = Teacher.objects.filter(name=cell["teacher"]).first()
                             Timetable.objects.create(
                                 class_model=selected_class,
                                 time_slot=ts,
                                 day_of_week=day,
                                 subject=subject,
-                                teacher=teacher,
+                                teacher=teacher
                             )
 
         context["selected_class"] = selected_class
@@ -324,66 +235,36 @@ class TimetableGenerateView(TemplateView):
         context["message"] = "Timetable generated and saved successfully."
         return context
 
-
-from io import BytesIO
-from django.http import HttpResponse
-from django.views import View
-from django.utils.timezone import now
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-
-
 class TimetableDownloadView(View):
     def get(self, request, *args, **kwargs):
-        # Get the target class name from query parameters
-        target_class_name = request.GET.get("class_name", "12th Science B Groups")
+        target_class_name = request.GET.get('class_name', '12th Science A Groups')
         try:
             selected_class = Class.objects.get(name=target_class_name)
         except Class.DoesNotExist:
             return HttpResponse("Class not found.", status=404)
 
-        # Query the timetable and order the entries
-        timetable_qs = Timetable.objects.filter(class_model=selected_class).order_by(
-            "day_of_week", "time_slot__start_time"
-        )
+        timetable_qs = Timetable.objects.filter(class_model=selected_class).order_by("day_of_week", "time_slot__start_time")
+        response = HttpResponse(content_type='text/csv')
+        filename = f"timetable_{selected_class.name.replace(' ', '_')}_{now().strftime('%Y%m%d')}.csv"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
-        # Prepare table data with header
-        header = [
-            "Time Slot",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-        ]
-        data = [header]
-
-        # Create a sorted list of unique timeslot IDs and map each timeslot to a formatted string
+        writer = csv.writer(response)
+        header = ["Time Slot", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        writer.writerow(header)
         timeslot_ids = sorted({entry.time_slot.id for entry in timetable_qs})
         timeslot_map = {}
         for entry in timetable_qs:
             ts = entry.time_slot
-            timeslot_map[ts.id] = (
-                f"{ts.start_time.strftime('%I:%M %p')} - {ts.end_time.strftime('%I:%M %p')}"
-            )
+            timeslot_map[ts.id] = f"{ts.start_time.strftime('%I:%M %p')} - {ts.end_time.strftime('%I:%M %p')}"
 
-        # Define days order
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-
-        # Organize timetable entries by timeslot
         schedule = {ts_id: {} for ts_id in timeslot_ids}
         for entry in timetable_qs:
             schedule[entry.time_slot.id][entry.day_of_week] = entry
 
-        # Build table rows for each timeslot
         for ts_id in timeslot_ids:
             row = [timeslot_map.get(ts_id, "")]
             sample_entry = schedule[ts_id].get(days[0])
-
-            # If the timeslot is a break, mark it accordingly
             if sample_entry and sample_entry.time_slot.is_break:
                 break_text = f"Break ({sample_entry.time_slot.start_time.strftime('%I:%M %p')} - {sample_entry.time_slot.end_time.strftime('%I:%M %p')})"
                 row.append(break_text)
@@ -396,45 +277,116 @@ class TimetableDownloadView(View):
                         row.append(cell_text)
                     else:
                         row.append("--")
-            data.append(row)
-
-        # Create a BytesIO buffer to receive PDF data
-        buffer = BytesIO()
-        # Create a SimpleDocTemplate for the PDF
-        doc = SimpleDocTemplate(buffer, pagesize=letter)
-        elements = []
-
-        # Optionally, add a title to the PDF
-        styles = getSampleStyleSheet()
-        title = Paragraph(f"Timetable for {selected_class.name}", styles["Title"])
-        elements.append(title)
-        elements.append(Spacer(1, 12))
-
-        # Create a table with the timetable data
-        table = Table(data)
-        table.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.gray),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                    ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
-                ]
-            )
-        )
-        elements.append(table)
-
-        # Build the PDF
-        doc.build(elements)
-        pdf = buffer.getvalue()
-        buffer.close()
-
-        # Create HTTP response with PDF content
-        response = HttpResponse(pdf, content_type="application/pdf")
-        filename = f"timetable_{selected_class.name.replace(' ', '_')}_{now().strftime('%Y%m%d')}.pdf"
-        response["Content-Disposition"] = f'attachment; filename="{filename}"'
-
+            writer.writerow(row)
         return response
+
+
+{% extends "base.html" %}
+{% load dict_extras %}
+
+{% block title %}Timetable for {{ selected_class.name }}{% endblock %}
+
+{% block extra_css %}
+  <style>
+    /* Highlight the first column in the table body */
+    .table tbody tr td:first-child, .day{
+      background-color: #f0f8ff;
+      font-weight: bold;
+    }
+    .all_days{
+      background-color: #f0f8ff !important;
+      font-weight: bold !important;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <!-- Page Header -->
+  <h2 class="text-center text-primary mb-2">Timetable for {{ selected_class.name }}</h2>
+
+  <!-- Alert Messages -->
+  {% if error %}
+    <div class="alert alert-danger text-center" role="alert">{{ error }}</div>
+  {% endif %}
+  {% if message %}
+    <div class="alert alert-success text-center" role="alert">{{ message }}</div>
+  {% endif %}
+
+  <!-- Timetable Table -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover shadow-sm">
+      <thead class="thead-dark">
+        <tr>
+          <th class="align-middle text-center">Time Slot</th>
+          {% for day in days %}
+            <th class="text-center align-middle all_days py-3">{{ day }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for ts in timeslots %}
+          <tr>
+            <td class="text-center align-middle">
+              {{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }}
+              {% if ts.is_break %}
+                <br><small class="text-muted">Break</small>
+              {% endif %}
+            </td>
+            {% if ts.is_break %}
+              <td colspan="{{ days|length }}" class="text-center text-muted align-middle">
+                {% with day_data=timetable|get_item:days.0 %}
+                  {% with cell=day_data|get_item:ts.id %}
+                    {{ cell.display }}
+                  {% endwith %}
+                {% endwith %}
+              </td>
+            {% else %}
+              {% for day in days %}
+                <td class="text-center align-middle">
+                  {% with day_data=timetable|get_item:day %}
+                    {% with cell=day_data|get_item:ts.id %}
+                      {% if cell %}
+                        <div class="text-primary font-weight-bold">{{ cell.subject }}</div>
+                        <div class="text-secondary"><small>{{ cell.teacher }}</small></div>
+                      {% else %}
+                        <span class="text-muted">--</span>
+                      {% endif %}
+                    {% endwith %}
+                  {% endwith %}
+                </td>
+              {% endfor %}
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Download Button -->
+  <div class="row mt-4">
+    <div class="col text-center">
+      <a href="{% url 'timetable_download' %}?class_name={{ selected_class.name }}" class="btn btn-outline-primary btn-lg">
+        <i class="fas fa-download"></i> Download Timetable
+      </a>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    // Wait for the DOM to load, then auto-hide alerts after 3 seconds.
+    document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(function() {
+        // Use a fade out effect for all alerts
+        document.querySelectorAll('.alert').forEach(function(alert) {
+          alert.style.transition = 'opacity 0.5s ease';
+          alert.style.opacity = '0';
+          // Remove the element after the fade out effect
+          setTimeout(function() {
+            alert.remove();
+          }, 500);
+        });
+      }, 3000);
+    });
+  </script>
+{% endblock %}
