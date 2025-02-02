@@ -1,106 +1,111 @@
+<!-- Updated timetable_list.html -->
 {% extends "base.html" %}
 {% load dict_extras %}
-
 
 {% block title %}Timetable List{% endblock %}
 
 {% block extra_css %}
   <style>
-    /* Basic styling for the timetable grid */
-    .table td, .table th {
-      text-align: center;
-      padding: 10px;
-    }
-    .table th {
-      background-color: #f8f9fa;
-      font-weight: bold;
-    }
-    .table td {
-      border: 1px solid #dee2e6;
-    }
-    .time-slot-header {
+    .table tbody tr td:first-child {
       background-color: #f0f8ff;
       font-weight: bold;
     }
-    .day-column {
-      background-color: #f0f8ff;
-      font-weight: bold;
+    .all_days {
+      background-color: #f0f8ff !important;
+      font-weight: bold !important;
     }
-    .subject-teacher {
-      display: block;
-      margin-bottom: 5px;
-    }
-    .no-entry {
-      color: gray;
+    .form-container {
+      margin: 20px 0;
     }
   </style>
 {% endblock %}
 
 {% block content %}
-  <h2 class="text-center text-primary mb-4">Timetable List</h2>
+  <h2 class="text-center text-primary mb-3">Class Timetables</h2>
 
-  <!-- Add Timetable Button -->
-  <div class="form-container mb-3">
-    <a href="{% url 'timetable_create' %}" class="btn btn-primary">
-      <i class="fas fa-plus-circle"></i> Add Timetable Entry
-    </a>
+  <!-- Class Selection Form -->
+  <div class="form-container">
+    <form method="get" action="{% url 'timetable_list' %}">
+      <div class="form-group row justify-content-center">
+        <label for="class_name" class="col-sm-2 col-form-label">Select Class:</label>
+        <div class="col-sm-4">
+          <select name="class_name" id="class_name" class="form-control">
+            {% for cls in available_classes %}
+              <option value="{{ cls.name }}" {% if selected_class and selected_class.name == cls.name %}selected{% endif %}>
+                {{ cls.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <button type="submit" class="btn btn-primary">Show Timetable</button>
+        </div>
+      </div>
+    </form>
   </div>
 
-  <!-- Timetable Grid -->
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped">
-      <thead>
-        <tr>
-          <th class="time-slot-header">Time Slot</th>
-          {% for day in days %}
-            <th class="day-column">{{ day }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for ts in timeslots %}
+
+  {% if selected_class %}
+    <!-- Timetable Grid -->
+    <div class="table-responsive mt-3">
+      <table class="table table-bordered table-hover shadow-sm">
+        <thead class="thead-dark">
           <tr>
-            <td>{{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }}</td>
+            <th class="align-middle text-center">Time Slot</th>
             {% for day in days %}
-              <td>
-                {% with timetable_entry=timetables|get_item:day %}
-                  {% with cell=timetable_entry|get_item:ts.id %}
-                    {% if cell %}
-                      <span class="subject-teacher">
-                        <strong>{{ cell.subject.name }}</strong>
-                      </span>
-                      <span class="subject-teacher">
-                        <small>{{ cell.teacher.name }}</small>
-                      </span>
-                    {% else %}
-                      <span class="no-entry">--</span>
-                    {% endif %}
-                  {% endwith %}
-                {% endwith %}
-              </td>
+              <th class="text-center align-middle all_days py-3">{{ day }}</th>
             {% endfor %}
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          {% for ts in timeslots %}
+            <tr>
+              <td class="text-center align-middle">
+                {{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }}
+                {% if ts.is_break %}
+                  <br><small class="text-muted">Break</small>
+                {% endif %}
+              </td>
+              {% if ts.is_break %}
+                <!-- Merge all columns for breaks -->
+                <td colspan="{{ days|length }}" class="text-center text-muted align-middle">
+                  {% with day_data=timetables|get_item:days.0 %}
+                    {% with cell=day_data|get_item:ts.id %}
+                      Break ({{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }})
+                    {% endwith %}
+                  {% endwith %}
+                </td>
+              {% else %}
+                <!-- Normal timeslots -->
+                {% for day in days %}
+                  <td class="text-center align-middle">
+                    {% with timetable_entry=timetables|get_item:day %}
+                      {% with cell=timetable_entry|get_item:ts.id %}
+                        {% if cell %}
+                          <div class="text-primary font-weight-bold">{{ cell.subject.name }}</div>
+                          <div class="text-secondary"><small>{{ cell.teacher.name }}</small></div>
+                        {% else %}
+                          <span class="text-muted">--</span>
+                        {% endif %}
+                      {% endwith %}
+                    {% endwith %}
+                  </td>
+                {% endfor %}
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-
-{% endblock %}
-
-{% block extra_js %}
-  <script>
-    // Auto-hide alert messages after 3 seconds.
-    document.addEventListener("DOMContentLoaded", function() {
-      setTimeout(function() {
-        document.querySelectorAll('.alert').forEach(function(alert) {
-          alert.style.transition = 'opacity 0.5s ease';
-          alert.style.opacity = '0';
-          setTimeout(function() {
-            alert.remove();
-          }, 500);
-        });
-      }, 3000);
-    });
-  </script>
+    <!-- Download Button -->
+    <div class="row mt-4">
+      <div class="col text-center">
+        <a href="{% url 'timetable_download' %}?class_name={{ selected_class.name }}"
+           class="btn btn-outline-primary btn-lg">
+          <i class="fas fa-download"></i> Download Timetable
+        </a>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}

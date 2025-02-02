@@ -1,3 +1,7 @@
+# Standard Library Imports
+import csv
+
+# Django Imports
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -9,16 +13,26 @@ from django.views.generic import (
     TemplateView,
     View,
 )
+from django.contrib import messages
 from django.db import transaction
+from django.http import HttpResponse
+from django.utils.timezone import now
+
+# Third‑Party Imports
+from ortools.sat.python import cp_model
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import landscape, letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.pdfgen import canvas
+
+# Local App Imports
 from .models import Timetable, TimeSlot
 from .forms import TimetableForm, TimeSlotForm
 from teachers.models import Teacher
 from subjects.models import Subject, ClassTeacherSubject
 from school_class.models import Class
-from ortools.sat.python import cp_model
-import csv
-from django.http import HttpResponse
-from django.utils.timezone import now
+
 
 ###############################################
 # CRUD Views (existing, unchanged)
@@ -29,12 +43,23 @@ class TimetableListView(ListView):
     model = Timetable
     template_name = "time_tables/timetable_list.html"
     context_object_name = "timetables"
-    ordering = ["day_of_week", "time_slot__start_time"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # List of days
+        # Get class selection
+        selected_class_name = self.request.GET.get("class_name")
+        context["selected_class"] = None
+        context["available_classes"] = Class.objects.all()
+
+        if selected_class_name:
+            try:
+                context["selected_class"] = Class.objects.get(name=selected_class_name)
+            except Class.DoesNotExist:
+                messages.error(self.request, f"Class {selected_class_name} not found")
+                pass
+
+        # Prepare timetable data structure
         context["days"] = [
             "Monday",
             "Tuesday",
@@ -43,20 +68,21 @@ class TimetableListView(ListView):
             "Friday",
             "Saturday",
         ]
+        context["timeslots"] = TimeSlot.objects.all().order_by("start_time")
 
-        # Get all time slots
-        context["timeslots"] = TimeSlot.objects.all()
-
-        # Prepare timetables for each day and timeslot
         timetables = {}
-        for day in context["days"]:
-            day_entries = Timetable.objects.filter(day_of_week=day)
-            timetables[day] = {ts.id: ts for ts in context["timeslots"]}
-            for entry in day_entries:
-                timetables[day][entry.time_slot.id] = entry
+        if context["selected_class"]:
+            # Fetch timetable entries for selected class
+            entries = Timetable.objects.filter(
+                class_model=context["selected_class"]
+            ).select_related("time_slot", "subject", "teacher")
+
+            # Create timetable structure
+            for day in context["days"]:
+                day_entries = entries.filter(day_of_week=day)
+                timetables[day] = {entry.time_slot.id: entry for entry in day_entries}
 
         context["timetables"] = timetables
-
         return context
 
 
@@ -288,6 +314,16 @@ class TimetableGenerateView(TemplateView):
         return context
 
 
+
+def add_page_number(canvas_obj, doc):
+    """
+    Adds the page number at the bottom-right of each page.
+    """
+    page_num = canvas_obj.getPageNumber()
+    text = f"Page {page_num}"
+    canvas_obj.setFont("Helvetica", 9)
+    canvas_obj.drawRightString(doc.pagesize[0] - 40, 20, text)
+
 class TimetableDownloadView(View):
     def get(self, request, *args, **kwargs):
         target_class_name = request.GET.get("class_name", "")
@@ -299,21 +335,48 @@ class TimetableDownloadView(View):
         timetable_qs = Timetable.objects.filter(class_model=selected_class).order_by(
             "day_of_week", "time_slot__start_time"
         )
-        response = HttpResponse(content_type="text/csv")
-        filename = f"timetable_{selected_class.name.replace(' ', '_')}_{now().strftime('%Y%m%d')}.csv"
+
+        # Create a PDF response
+        response = HttpResponse(content_type="application/pdf")
+        filename = f"timetable_{selected_class.name.replace(' ', '_')}_{now().strftime('%Y%m%d')}.pdf"
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
-        writer = csv.writer(response)
-        header = [
-            "Time Slot",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-        ]
-        writer.writerow(header)
+        # Create a PDF document with landscape letter size
+        doc = SimpleDocTemplate(
+            response,
+            pagesize=landscape(letter),
+            rightMargin=30, leftMargin=30,
+            topMargin=30, bottomMargin=40
+        )
+        elements = []
+
+        # Custom styles for a professional look
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(
+            name='CellText',
+            parent=styles['Normal'],
+            fontSize=10,
+            leading=12,
+            alignment=1,  # Center aligned
+            textColor=colors.HexColor('#2C3E50'),
+        ))
+        title_style = ParagraphStyle(
+            name='Title',
+            fontSize=26,
+            leading=32,
+            spaceAfter=20,
+            alignment=1,
+            fontName='Helvetica-Bold',
+            textColor=colors.HexColor('#2980B9')
+        )
+        elements.append(Paragraph(f"{selected_class.name} Timetable", title_style))
+        elements.append(Spacer(1, 12))
+
+        # Prepare the table header
+        header = ["Time Slot", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        data = [header]
+
+        # Map and sort time slots
         timeslot_ids = sorted({entry.time_slot.id for entry in timetable_qs})
         timeslot_map = {}
         for entry in timetable_qs:
@@ -327,20 +390,56 @@ class TimetableDownloadView(View):
         for entry in timetable_qs:
             schedule[entry.time_slot.id][entry.day_of_week] = entry
 
+        # Build table rows for each time slot
         for ts_id in timeslot_ids:
-            row = [timeslot_map.get(ts_id, "")]
-            sample_entry = schedule[ts_id].get(days[0])
-            if sample_entry and sample_entry.time_slot.is_break:
-                break_text = f"Break ({sample_entry.time_slot.start_time.strftime('%I:%M %p')} - {sample_entry.time_slot.end_time.strftime('%I:%M %p')})"
-                row.append(break_text)
-                row.extend([""] * (len(days) - 1))
-            else:
-                for day in days:
-                    entry = schedule[ts_id].get(day)
-                    if entry:
-                        cell_text = f"{entry.subject.name if entry.subject else ''}\n{entry.teacher.name if entry.teacher else ''}"
-                        row.append(cell_text)
-                    else:
-                        row.append("--")
-            writer.writerow(row)
+            time_slot = timeslot_map.get(ts_id, "")
+            row = [time_slot]
+            for day in days:
+                entry = schedule[ts_id].get(day)
+                if entry:
+                    subject = entry.subject.name if entry.subject else ''
+                    teacher = entry.teacher.name if entry.teacher else ''
+                    cell_content = f"<b>{subject}</b><br/><i>{teacher}</i>"
+                    row.append(cell_content)
+                else:
+                    row.append("--")
+            data.append(row)
+
+        # Convert each cell to a Paragraph object
+        for i, row in enumerate(data):
+            for j, cell in enumerate(row):
+                if i == 0:  # header row
+                    data[i][j] = Paragraph(f"<b>{cell}</b>", styles['Heading4'])
+                else:
+                    data[i][j] = Paragraph(cell, styles['CellText'])
+
+        # Define column widths for the table
+        col_widths = [doc.width * 0.15] + [doc.width * 0.14] * 6
+        table = Table(data, colWidths=col_widths, repeatRows=1)
+
+        # Style the table with alternating row colors and padding
+        table_style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#3498DB')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 14),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#F9F9F9')),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CCCCCC')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F0F8FF')]),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ])
+        table.setStyle(table_style)
+        elements.append(table)
+
+        # Build the PDF and add page numbers
+        doc.build(elements, onFirstPage=add_page_number, onLaterPages=add_page_number)
+
         return response
+
+
