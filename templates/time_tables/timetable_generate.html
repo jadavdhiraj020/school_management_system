@@ -3,49 +3,54 @@
 
 {% block title %}Timetable for {{ selected_class.name }}{% endblock %}
 
+{% block extra_css %}
+  <style>
+    /* Highlight the first column in the table body */
+    .table tbody tr td:first-child, .day{
+      background-color: #f0f8ff;
+      font-weight: bold;
+    }
+    .all_days{
+      background-color: #f0f8ff !important;
+      font-weight: bold !important;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-  <div class="row mb-4">
-    <div class="col text-center">
-      <h1>Timetable for {{ selected_class.name }}</h1>
-    </div>
-  </div>
+  <!-- Page Header -->
+  <h2 class="text-center text-primary mb-2">Timetable for {{ selected_class.name }}</h2>
 
+  <!-- Alert Messages -->
   {% if error %}
-    <div class="alert alert-danger text-center">{{ error }}</div>
+    <div class="alert alert-danger text-center" role="alert">{{ error }}</div>
   {% endif %}
-
   {% if message %}
-    <div class="alert alert-success text-center">{{ message }}</div>
+    <div class="alert alert-success text-center" role="alert">{{ message }}</div>
   {% endif %}
 
-  <div class="text-right mb-3">
-    <a href="{% url 'timetable_download' %}?class_name={{ selected_class.name }}" class="btn btn-outline-primary">
-      <i class="fas fa-download"></i> Download Timetable
-    </a>
-  </div>
-
+  <!-- Timetable Table -->
   <div class="table-responsive">
     <table class="table table-bordered table-hover shadow-sm">
       <thead class="thead-dark">
         <tr>
-          <th>Time Slot</th>
+          <th class="align-middle text-center">Time Slot</th>
           {% for day in days %}
-            <th class="text-center">{{ day }}</th>
+            <th class="text-center align-middle all_days py-3">{{ day }}</th>
           {% endfor %}
         </tr>
       </thead>
       <tbody>
         {% for ts in timeslots %}
           <tr>
-            <td class="font-weight-bold">
+            <td class="text-center align-middle">
               {{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }}
               {% if ts.is_break %}
                 <br><small class="text-muted">Break</small>
               {% endif %}
             </td>
             {% if ts.is_break %}
-              <td colspan="{{ days|length }}" class="text-center text-muted">
+              <td colspan="{{ days|length }}" class="text-center text-muted align-middle">
                 {% with day_data=timetable|get_item:days.0 %}
                   {% with cell=day_data|get_item:ts.id %}
                     {{ cell.display }}
@@ -54,7 +59,7 @@
               </td>
             {% else %}
               {% for day in days %}
-                <td class="text-center">
+                <td class="text-center align-middle">
                   {% with day_data=timetable|get_item:day %}
                     {% with cell=day_data|get_item:ts.id %}
                       {% if cell %}
@@ -73,5 +78,32 @@
       </tbody>
     </table>
   </div>
-</div>
+
+  <!-- Download Button -->
+  <div class="row mt-4">
+    <div class="col text-center">
+      <a href="{% url 'timetable_download' %}?class_name={{ selected_class.name }}" class="btn btn-outline-primary btn-lg">
+        <i class="fas fa-download"></i> Download Timetable
+      </a>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    // Wait for the DOM to load, then auto-hide alerts after 3 seconds.
+    document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(function() {
+        // Use a fade out effect for all alerts
+        document.querySelectorAll('.alert').forEach(function(alert) {
+          alert.style.transition = 'opacity 0.5s ease';
+          alert.style.opacity = '0';
+          // Remove the element after the fade out effect
+          setTimeout(function() {
+            alert.remove();
+          }, 500);
+        });
+      }, 3000);
+    });
+  </script>
 {% endblock %}

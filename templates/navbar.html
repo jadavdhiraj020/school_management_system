@@ -53,6 +53,13 @@
         </li>
         <li class="nav-item">
           <a
+            class="nav-link {% if request.path|slice:":11" == '/timetables' %}active{% endif %}"
+            href="{% url 'timetable_generate' %}"
+            >Generate</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
             class="nav-link {% if request.path|slice:":6" == '/admin' %}active{% endif %}"
             href="{% url 'admin:index' %}"
             >Admin</a

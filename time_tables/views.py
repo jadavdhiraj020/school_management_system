@@ -87,7 +87,7 @@ class TimetableGenerateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        target_class_name = self.request.GET.get('class_name', '12th Science B Groups')
+        target_class_name = self.request.GET.get('class_name', '12th Science A Groups')
         try:
             selected_class = Class.objects.get(name=target_class_name)
         except Class.DoesNotExist:
@@ -208,7 +208,7 @@ class TimetableGenerateView(TemplateView):
 
 class TimetableDownloadView(View):
     def get(self, request, *args, **kwargs):
-        target_class_name = request.GET.get('class_name', '12th Science B Groups')
+        target_class_name = request.GET.get('class_name', '12th Science A Groups')
         try:
             selected_class = Class.objects.get(name=target_class_name)
         except Class.DoesNotExist:
