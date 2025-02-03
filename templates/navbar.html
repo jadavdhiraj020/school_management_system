@@ -18,49 +18,49 @@
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
           <a
-            class="nav-link {% if request.path|slice:":9" == '/students' %}active{% endif %}"
+            class="nav-link"
             href="{% url 'student_list' %}"
             >Students</a
           >
         </li>
         <li class="nav-item">
           <a
-            class="nav-link {% if request.path|slice:":9" == '/teachers' %}active{% endif %}"
+            class="nav-link"
             href="{% url 'teacher_list' %}"
             >Teachers</a
           >
         </li>
         <li class="nav-item">
           <a
-            class="nav-link {% if request.path|slice:":8" == '/classes' %}active{% endif %}"
+            class="nav-link"
             href="{% url 'class_list' %}"
             >Classes</a
           >
         </li>
         <li class="nav-item">
           <a
-            class="nav-link {% if request.path|slice:":9" == '/subjects' %}active{% endif %}"
+            class="nav-link"
             href="{% url 'subject_list' %}"
             >Subjects</a
           >
         </li>
         <li class="nav-item">
           <a
-            class="nav-link {% if request.path|slice:":11" == '/timetables' %}active{% endif %}"
+            class="nav-link"
             href="{% url 'timetable_list' %}"
             >Timetables</a
           >
         </li>
         <li class="nav-item">
           <a
-            class="nav-link {% if request.path|slice:":11" == '/timetables' %}active{% endif %}"
+            class="nav-link"
             href="{% url 'timetable_generate' %}"
             >Generate</a
           >
         </li>
         <li class="nav-item">
           <a
-            class="nav-link {% if request.path|slice:":6" == '/admin' %}active{% endif %}"
+            class="nav-link"
             href="{% url 'admin:index' %}"
             >Admin</a
           >
@@ -69,3 +69,6 @@
     </div>
   </div>
 </nav>
+
+
+

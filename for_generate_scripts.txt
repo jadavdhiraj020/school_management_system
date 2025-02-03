@@ -1,392 +1,697 @@
-make it dynamic means users enter class and after it process and auto generated timetables and if some error or issues are encountered then fix it also and generated complete updated code
+give me complete updated code for generetaing userprofile in generating dummy data files
 
-from django.urls import path
-from . import views
+also generate generate_attendance.py for dummy data generate
 
-urlpatterns = [
-    # CRUD URLs for Timetable entries
-    path('', views.TimetableListView.as_view(), name='timetable_list'),
-    path('add/', views.TimetableCreateView.as_view(), name='timetable_create'),
-    path('<int:pk>/', views.TimetableDetailView.as_view(), name='timetable_detail'),
-    path('<int:pk>/edit/', views.TimetableUpdateView.as_view(), name='timetable_update'),
-    path('<int:pk>/delete/', views.TimetableDeleteView.as_view(), name='timetable_delete'),
+i have this files for generating dummy data for my project what changes needed solve problem you know my all models.py because you
+genearte above others you know that you generate
 
-    # CRUD URLs for TimeSlots
-    path('timeslots/', views.TimeSlotListView.as_view(), name='timeslot_list'),
-    path('timeslots/add/', views.TimeSlotCreateView.as_view(), name='timeslot_create'),
-    path('timeslots/<int:pk>/', views.TimeSlotDetailView.as_view(), name='timeslot_detail'),
-    path('timeslots/<int:pk>/edit/', views.TimeSlotUpdateView.as_view(), name='timeslot_update'),
-    path('timeslots/<int:pk>/delete/', views.TimeSlotDeleteView.as_view(), name='timeslot_delete'),
+but i have some exiting objects of
+students(100) for each class 50 students,
+teachers(12) for each subject 2 teachers,
+subject(6) for each class subject is predifined,
+classes(2),
+timetables(2) auto generate by Google Or-Tools
 
-    # New scheduling view using OR-Tools (generates & saves timetable)
-    path('generate/', views.TimetableGenerateView.as_view(), name='timetable_generate'),
+i provide some my code to help you generetae complete updated code with efficiently
 
-    # New download URL (CSV download example)
-    path('download/', views.TimetableDownloadView.as_view(), name='timetable_download'),
-]
-
-
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse_lazy
-from django.views.generic import (
-    ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView, View
-)
-from django.db import transaction
-from .models import Timetable, TimeSlot
-from .forms import TimetableForm, TimeSlotForm
+from django.core.management.base import BaseCommand
 from teachers.models import Teacher
-from subjects.models import Subject, ClassTeacherSubject
-from school_class.models import Class
-from ortools.sat.python import cp_model
-import csv
-from django.http import HttpResponse
-from django.utils.timezone import now
-
-###############################################
-# CRUD Views (existing, unchanged)
-###############################################
-
-class TimetableListView(ListView):
-    model = Timetable
-    template_name = "time_tables/timetable_list.html"
-    context_object_name = "timetables"
-    ordering = ['day_of_week', 'time_slot__start_time']
-
-class TimetableDetailView(DetailView):
-    model = Timetable
-    template_name = "time_tables/timetable_detail.html"
-    context_object_name = "timetable"
-
-class TimetableCreateView(CreateView):
-    model = Timetable
-    form_class = TimetableForm
-    template_name = "time_tables/timetable_form.html"
-    success_url = reverse_lazy("timetable_list")
-
-class TimetableUpdateView(UpdateView):
-    model = Timetable
-    form_class = TimetableForm
-    template_name = "time_tables/timetable_form.html"
-    success_url = reverse_lazy("timetable_list")
-
-class TimetableDeleteView(DeleteView):
-    model = Timetable
-    template_name = "time_tables/timetable_confirm_delete.html"
-    context_object_name = "timetable"
-    success_url = reverse_lazy("timetable_list")
-
-class TimeSlotListView(ListView):
-    model = TimeSlot
-    template_name = "time_tables/timeslot_list.html"
-    context_object_name = "timeslots"
-    ordering = ["start_time"]
-
-class TimeSlotDetailView(DetailView):
-    model = TimeSlot
-    template_name = "time_tables/timeslot_detail.html"
-    context_object_name = "timeslot"
-
-class TimeSlotCreateView(CreateView):
-    model = TimeSlot
-    form_class = TimeSlotForm
-    template_name = "time_tables/timeslot_form.html"
-    success_url = reverse_lazy("timeslot_list")
-
-class TimeSlotUpdateView(UpdateView):
-    model = TimeSlot
-    form_class = TimeSlotForm
-    template_name = "time_tables/timeslot_form.html"
-    success_url = reverse_lazy("timeslot_list")
-
-class TimeSlotDeleteView(DeleteView):
-    model = TimeSlot
-    template_name = "time_tables/timeslot_confirm_delete.html"
-    context_object_name = "timeslot"
-    success_url = reverse_lazy("timeslot_list")
+import random
+from faker import Faker
+from django.db.utils import IntegrityError
+from datetime import date
 
 
-###############################################
-# New Scheduling and Saving View with OR-Tools
-###############################################
+class Command(BaseCommand):
+    help = "Generate random teacher data."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "number",
+            type=int,
+            nargs="?",
+            default=12,
+            help="Number of teachers to generate (default: 12)",
+        )
+        # Optional arguments for age range
+        parser.add_argument(
+            "--min-age",
+            type=int,
+            default=25,
+            help="Minimum age of teachers (default: 25)",
+        )
+        parser.add_argument(
+            "--max-age",
+            type=int,
+            default=60,
+            help="Maximum age of teachers (default: 60)",
+        )
 
-class TimetableGenerateView(TemplateView):
-    template_name = "time_tables/timetable_generate.html"
+    def handle(self, *args, **options):
+        number = options["number"]
+        min_age = options["min_age"]
+        max_age = options["max_age"]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        target_class_name = self.request.GET.get('class_name', '12th Science A Groups')
-        try:
-            selected_class = Class.objects.get(name=target_class_name)
-        except Class.DoesNotExist:
-            context['error'] = f"Class '{target_class_name}' not found."
-            return context
+        if min_age > max_age:
+            self.stdout.write(
+                self.style.ERROR("Minimum age cannot be greater than maximum age.")
+            )
+            return
 
-        # 6-day week: Monday to Saturday.
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-        all_timeslots = list(TimeSlot.objects.all().order_by("start_time"))
-        lesson_timeslots = [ts for ts in all_timeslots if not ts.is_break]
+        fake = Faker()
+        Faker.seed(0)  # Seed for reproducibility
+        fake.unique.clear()  # Clear unique generator
+        created_count = 0
+        attempt = 0
+        max_attempts = number * 2  # To prevent infinite loops
 
-        classes = list(Class.objects.all())
-        class_assignments = {}
-        for cls in classes:
-            assignments_qs = ClassTeacherSubject.objects.filter(class_obj=cls)
-            assignments = []
-            for cts in assignments_qs:
-                assignments.append({
-                    "subject_id": cts.subject.id,
-                    "teacher_id": cts.teacher.id,
-                    "subject_name": cts.subject.name,
-                    "teacher_name": cts.teacher.name,
-                })
-            if len(assignments) != len(lesson_timeslots):
-                context['error'] = (
-                    f"Class {cls.name} has {len(assignments)} assignments but "
-                    f"{len(lesson_timeslots)} lesson slots per day."
+        while created_count < number and attempt < max_attempts:
+            attempt += 1
+            name = fake.name()
+            email = fake.unique.email()
+            age = random.randint(min_age, max_age)
+            phone = fake.phone_number()[:15]
+            address = fake.address()
+            joining_date = fake.date_between(start_date="-10y", end_date=date.today())
+
+            try:
+                teacher = Teacher.objects.create(
+                    name=name,
+                    email=email,
+                    age=age,
+                    phone=phone,
+                    address=address,
+                    joining_date=joining_date,
                 )
-                return context
-            class_assignments[cls.id] = assignments
+                created_count += 1
+                self.stdout.write(self.style.SUCCESS(f"Created teacher: {name}"))
+            except IntegrityError as e:
+                # Handle potential unique constraint violations
+                fake.unique.clear()  # Reset unique generator in case of duplicate email
+                self.stdout.write(
+                    self.style.ERROR(f"Failed to create teacher {name}: {e}")
+                )
+                continue
 
-        model = cp_model.CpModel()
-        decision_vars = {}
-        teacher_vars = {}
-        for cls in classes:
-            assignments = class_assignments[cls.id]
-            n_assignments = len(assignments)
-            teacher_ids_list = [assignment["teacher_id"] for assignment in assignments]
-            for day in days:
-                day_vars = []
-                for slot_index in range(n_assignments):
-                    var = model.NewIntVar(0, n_assignments - 1, f"cls{cls.id}_{day}_slot{slot_index}")
-                    decision_vars[(cls.id, day, slot_index)] = var
-                    day_vars.append(var)
-                    t_var = model.NewIntVar(min(teacher_ids_list), max(teacher_ids_list),
-                                            f"cls{cls.id}_{day}_slot{slot_index}_teacher")
-                    teacher_vars[(cls.id, day, slot_index)] = t_var
-                    model.AddElement(var, teacher_ids_list, t_var)
-                model.AddAllDifferent(day_vars)
+        if created_count < number:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"Only created {created_count} teachers out of requested {number} due to constraints."
+                )
+            )
+        else:
+            self.stdout.write(
+                self.style.SUCCESS(f"Successfully created {created_count} teachers.")
+            )
 
-        for day in days:
-            for slot_index in range(len(lesson_timeslots)):
-                teacher_vars_this_slot = []
-                for cls in classes:
-                    teacher_vars_this_slot.append(teacher_vars[(cls.id, day, slot_index)])
-                model.AddAllDifferent(teacher_vars_this_slot)
 
-        solver = cp_model.CpSolver()
-        status = solver.Solve(model)
-        if status not in [cp_model.OPTIMAL, cp_model.FEASIBLE]:
-            context['error'] = "No feasible timetable found."
-            return context
+import random
+from django.core.management.base import BaseCommand
+from subjects.models import Subject, ClassTeacherSubject
+from teachers.models import Teacher
+from school_class.models import Class
+from django.db.utils import IntegrityError
+from django.db import transaction
 
-        timetable_solution = {cls.id: {day: {} for day in days} for cls in classes}
-        for cls in classes:
-            lesson_counter = 0
-            for ts in all_timeslots:
-                if ts.is_break:
-                    for day in days:
-                        timetable_solution[cls.id][day][ts.id] = {
-                            "is_break": True,
-                            "display": f"Break ({ts.start_time.strftime('%I:%M %p')} - {ts.end_time.strftime('%I:%M %p')})"
-                        }
-                else:
-                    for day in days:
-                        var = decision_vars[(cls.id, day, lesson_counter)]
-                        assign_index = solver.Value(var)
-                        assignment = class_assignments[cls.id][assign_index]
-                        timetable_solution[cls.id][day][ts.id] = {
-                            "is_break": False,
-                            "subject": assignment["subject_name"],
-                            "teacher": assignment["teacher_name"],
-                        }
-                    lesson_counter += 1
 
-        # Save the timetable for the selected class.
-        Timetable.objects.filter(class_model=selected_class).delete()
-        with transaction.atomic():
-            for day in days:
-                for ts in all_timeslots:
-                    cell = timetable_solution[selected_class.id][day].get(ts.id)
-                    if cell:
-                        if ts.is_break:
-                            Timetable.objects.create(
-                                class_model=selected_class,
-                                time_slot=ts,
-                                day_of_week=day,
-                                subject=None,
-                                teacher=None
+class Command(BaseCommand):
+    help = (
+        "Generate specific subjects and assign them to specific classes with teachers."
+    )
+
+    def handle(self, *args, **kwargs):
+        # Subject names
+        subject_names = [
+            "Chemistry",
+            "English",
+            "Physics",
+            "Mathematics",
+            "Biology",
+            "Computer",
+        ]
+
+        # Class assignments
+        subject_mapping = {
+            "12th Science A Groups": [
+                "Mathematics",
+                "Chemistry",
+                "English",
+                "Physics",
+                "Computer",
+            ],
+            "12th Science B Groups": [
+                "Biology",
+                "Chemistry",
+                "English",
+                "Physics",
+                "Computer",
+            ],
+        }
+
+        # Step 1: Ensure classes exist
+        class_names = ["12th Science A Groups", "12th Science B Groups"]
+        classes = {}
+
+        for class_name in class_names:
+            class_obj, created = Class.objects.get_or_create(name=class_name)
+            classes[class_name] = class_obj
+            if created:
+                self.stdout.write(self.style.SUCCESS(f"Created class: {class_name}"))
+            else:
+                self.stdout.write(
+                    self.style.WARNING(f"Class '{class_name}' already exists.")
+                )
+
+        # Step 2: Create subjects
+        subjects = {}
+        for subject_name in subject_names:
+            subject_obj, created = Subject.objects.get_or_create(name=subject_name)
+            subjects[subject_name] = subject_obj
+            if created:
+                self.stdout.write(
+                    self.style.SUCCESS(f"Created subject: {subject_name}")
+                )
+            else:
+                self.stdout.write(
+                    self.style.WARNING(f"Subject '{subject_name}' already exists.")
+                )
+
+        # Step 3: Ensure there are enough teachers
+        teachers = list(Teacher.objects.all())
+        if not teachers:
+            self.stdout.write(
+                self.style.ERROR("No teachers available in the database.")
+            )
+            return
+
+        # Step 4: Assign subjects to classes with teachers
+        for class_name, subject_list in subject_mapping.items():
+            assigned_class = classes[class_name]
+
+            for subject_name in subject_list:
+                subject = subjects[subject_name]
+
+                # Assign a random teacher to the subject for the class
+                # Ensure that the teacher is not assigned to another subject in the same class
+                existing_assignments = ClassTeacherSubject.objects.filter(
+                    class_obj=assigned_class, teacher__id=teachers[0].id
+                )
+
+                if existing_assignments.exists():
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"Teacher {teachers[0].name} already assigned to another subject in this class. Skipping..."
+                        )
+                    )
+                    continue
+
+                teacher = random.choice(teachers)
+                try:
+                    with transaction.atomic():
+                        assignment, created = ClassTeacherSubject.objects.get_or_create(
+                            class_obj=assigned_class, teacher=teacher, subject=subject
+                        )
+                        if created:
+                            self.stdout.write(
+                                self.style.SUCCESS(
+                                    f"Assigned {subject.name} to {teacher.name} in {assigned_class.name}"
+                                )
                             )
                         else:
-                            subject = Subject.objects.filter(name=cell["subject"]).first()
-                            teacher = Teacher.objects.filter(name=cell["teacher"]).first()
-                            Timetable.objects.create(
-                                class_model=selected_class,
-                                time_slot=ts,
-                                day_of_week=day,
-                                subject=subject,
-                                teacher=teacher
+                            self.stdout.write(
+                                self.style.WARNING(
+                                    f"Assignment already exists: {subject.name} with {teacher.name} in {assigned_class.name}"
+                                )
                             )
+                except IntegrityError as e:
+                    self.stdout.write(
+                        self.style.ERROR(f"Failed to assign {subject.name}: {e}")
+                    )
+                    continue
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(f"Unexpected error: {e}"))
+                    continue
 
-        context["selected_class"] = selected_class
-        context["days"] = days
-        context["timeslots"] = all_timeslots
-        context["timetable"] = timetable_solution[selected_class.id]
-        context["message"] = "Timetable generated and saved successfully."
-        return context
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Subject generation and assignment completed successfully."
+            )
+        )
 
-class TimetableDownloadView(View):
-    def get(self, request, *args, **kwargs):
-        target_class_name = request.GET.get('class_name', '12th Science A Groups')
-        try:
-            selected_class = Class.objects.get(name=target_class_name)
-        except Class.DoesNotExist:
-            return HttpResponse("Class not found.", status=404)
 
-        timetable_qs = Timetable.objects.filter(class_model=selected_class).order_by("day_of_week", "time_slot__start_time")
-        response = HttpResponse(content_type='text/csv')
-        filename = f"timetable_{selected_class.name.replace(' ', '_')}_{now().strftime('%Y%m%d')}.csv"
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+from django.core.management.base import BaseCommand
+from students.models import Student
+from school_class.models import Class
+from subjects.models import Subject
+import random
+from faker import Faker
+from django.db.utils import IntegrityError
+from datetime import date
 
-        writer = csv.writer(response)
-        header = ["Time Slot", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-        writer.writerow(header)
-        timeslot_ids = sorted({entry.time_slot.id for entry in timetable_qs})
-        timeslot_map = {}
-        for entry in timetable_qs:
-            ts = entry.time_slot
-            timeslot_map[ts.id] = f"{ts.start_time.strftime('%I:%M %p')} - {ts.end_time.strftime('%I:%M %p')}"
+class Command(BaseCommand):
+    help = "Generate random student data."
 
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-        schedule = {ts_id: {} for ts_id in timeslot_ids}
-        for entry in timetable_qs:
-            schedule[entry.time_slot.id][entry.day_of_week] = entry
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "number",
+            type=int,
+            nargs="?",
+            default=100,
+            help="Number of students to generate (default: 100)",
+        )
+        # Optional arguments for age range
+        parser.add_argument(
+            "--min-age",
+            type=int,
+            default=15,
+            help="Minimum age of students (default: 15)",
+        )
+        parser.add_argument(
+            "--max-age",
+            type=int,
+            default=25,
+            help="Maximum age of students (default: 25)",
+        )
 
-        for ts_id in timeslot_ids:
-            row = [timeslot_map.get(ts_id, "")]
-            sample_entry = schedule[ts_id].get(days[0])
-            if sample_entry and sample_entry.time_slot.is_break:
-                break_text = f"Break ({sample_entry.time_slot.start_time.strftime('%I:%M %p')} - {sample_entry.time_slot.end_time.strftime('%I:%M %p')})"
-                row.append(break_text)
-                row.extend([""] * (len(days) - 1))
+    def handle(self, *args, **options):
+        number = options["number"]
+        min_age = options["min_age"]
+        max_age = options["max_age"]
+
+        if min_age > max_age:
+            self.stdout.write(
+                self.style.ERROR("Minimum age cannot be greater than maximum age.")
+            )
+            return
+
+        fake = Faker()
+        Faker.seed(0)  # Seed for reproducibility
+        fake.unique.clear()  # Clear unique generator
+
+        # Define the classes and their subjects
+        class_subject_mapping = {
+            "12th Science A Groups": [
+                "Mathematics",
+                "Chemistry",
+                "English",
+                "Physics",
+                "Computer",
+            ],
+            "12th Science B Groups": [
+                "Biology",
+                "Chemistry",
+                "English",
+                "Physics",
+                "Computer",
+            ],
+        }
+
+        # Fetch the classes and their associated subjects
+        classes = {}
+        for class_name, subject_names in class_subject_mapping.items():
+            class_obj = Class.objects.filter(name=class_name).first()
+            if not class_obj:
+                self.stdout.write(
+                    self.style.ERROR(
+                        f'Class "{class_name}" does not exist. Please create it first.'
+                    )
+                )
+                return
+            # Get the subject objects
+            subjects = Subject.objects.filter(name__in=subject_names)
+            if subjects.count() != len(subject_names):
+                missing_subjects = set(subject_names) - set(
+                    subjects.values_list("name", flat=True)
+                )
+                self.stdout.write(
+                    self.style.ERROR(
+                        f'Missing subjects for class "{class_name}": {", ".join(missing_subjects)}. Please create them first.'
+                    )
+                )
+                return
+            classes[class_obj] = list(subjects)
+
+        if not classes:
+            self.stdout.write(
+                self.style.ERROR(
+                    "No classes found. Please create the necessary classes and subjects first."
+                )
+            )
+            return
+
+        created_count = 0
+        attempt = 0
+        max_attempts = number * 2  # To prevent infinite loops
+
+        while created_count < number and attempt < max_attempts:
+            attempt += 1
+            name = fake.name()
+            email = fake.unique.email()
+            age = random.randint(min_age, max_age)
+            phone = fake.phone_number()[:15]
+            address = fake.address()
+            enrollment_date = fake.date_between(start_date="-2y", end_date=date.today())  # Fix here with `date.today()`
+            # Randomly select a class
+            class_obj, class_subjects = random.choice(list(classes.items()))
+
+            # Assign all subjects from the class to the student
+            student_subjects = class_subjects
+
+            try:
+                student = Student.objects.create(
+                    name=name,
+                    email=email,
+                    age=age,
+                    phone=phone,
+                    address=address,
+                    enrollment_date=enrollment_date,
+                    class_obj=class_obj,
+                )
+                student.subjects.set(student_subjects)
+                created_count += 1
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f'Created student: {name} in class "{class_obj.name}"'
+                    )
+                )
+            except IntegrityError as e:
+                # Handle potential unique constraint violations
+                fake.unique.clear()  # Reset unique generator in case of duplicate email
+                self.stdout.write(
+                    self.style.ERROR(f"Failed to create student {name}: {e}")
+                )
+                continue
+
+        if created_count < number:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"Only created {created_count} students out of requested {number} due to constraints."
+                )
+            )
+        else:
+            self.stdout.write(
+                self.style.SUCCESS(f"Successfully created {created_count} students.")
+            )
+
+from django.core.management.base import BaseCommand
+from students.models import Student
+from teachers.models import Teacher
+from school_class.models import Class
+from subjects.models import Subject, ClassTeacherSubject
+from django.db.utils import IntegrityError
+from django.db import transaction
+import random
+
+
+class Command(BaseCommand):
+    help = "Generate classes with teachers, subjects, and assign students"
+
+    def handle(self, *args, **kwargs):
+        teachers = Teacher.objects.all()
+        students = Student.objects.all()
+        subjects = Subject.objects.all()
+
+        if not teachers.exists():
+            self.stdout.write(
+                self.style.ERROR("No teachers found! Please create teachers first.")
+            )
+            return
+
+        if not students.exists():
+            self.stdout.write(
+                self.style.ERROR("No students found! Please create students first.")
+            )
+            return
+
+        if not subjects.exists():
+            self.stdout.write(
+                self.style.ERROR("No subjects found! Please create subjects first.")
+            )
+            return
+
+        class_names = [
+            "12th Science A Groups",
+            "12th Science B Groups",
+        ]
+
+        used_teachers_as_class_teacher = set()
+
+        for class_name in class_names:
+            if not Class.objects.filter(name=class_name).exists():
+                # Assign a random teacher as the class teacher who hasn't already been used
+                available_teachers = teachers.exclude(
+                    id__in=used_teachers_as_class_teacher
+                ).order_by("?")
+                if not available_teachers.exists():
+                    self.stdout.write(
+                        self.style.ERROR(
+                            "Not enough teachers available for assigning as class teachers!"
+                        )
+                    )
+                    return
+
+                class_teacher = available_teachers.first()
+                used_teachers_as_class_teacher.add(class_teacher.id)
+
+                # Create the class with a class teacher
+                class_instance = Class.objects.create(
+                    name=class_name,
+                    class_teacher=class_teacher,
+                )
+
+                # Assign subjects to the class
+                # For simplicity, assign all available subjects
+                class_subjects = list(
+                    subjects.order_by("?")[:6]
+                )  # Adjust the number as needed
+
+                # For each subject, assign a random teacher
+                for subject in class_subjects:
+                    # Select a random teacher
+                    teaching_teacher = random.choice(teachers)
+
+                    try:
+                        with transaction.atomic():
+                            # Create the ClassTeacherSubject entry
+                            ClassTeacherSubject.objects.create(
+                                class_obj=class_instance,
+                                teacher=teaching_teacher,
+                                subject=subject,
+                            )
+                            self.stdout.write(
+                                self.style.SUCCESS(
+                                    f"Assigned subject '{subject.name}' to class '{class_name}' with teacher '{teaching_teacher.name}'."
+                                )
+                            )
+                    except IntegrityError as e:
+                        self.stdout.write(
+                            self.style.ERROR(
+                                f"Failed to assign subject '{subject.name}' to class '{class_name}': {e}"
+                            )
+                        )
+                        continue
+
+                # Assign up to 50 random students to the class
+                students_for_class = students.filter(class_obj__isnull=True).order_by(
+                    "?"
+                )[:50]
+                for student in students_for_class:
+                    student.class_obj = class_instance
+                    student.save()
+
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f'Created class: "{class_name}" with class teacher: {class_teacher.name}, '
+                        f"{len(class_subjects)} subjects assigned, and {students_for_class.count()} students."
+                    )
+                )
             else:
-                for day in days:
-                    entry = schedule[ts_id].get(day)
-                    if entry:
-                        cell_text = f"{entry.subject.name if entry.subject else ''}\n{entry.teacher.name if entry.teacher else ''}"
-                        row.append(cell_text)
-                    else:
-                        row.append("--")
-            writer.writerow(row)
-        return response
+                self.stdout.write(
+                    self.style.WARNING(
+                        f'Class "{class_name}" already exists, skipping.'
+                    )
+                )
 
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Successfully generated classes with teachers, subjects, and students!"
+            )
+        )
 
-{% extends "base.html" %}
-{% load dict_extras %}
+from django.core.management.base import BaseCommand
+from time_tables.models import Timetable, TimeSlot
+from school_class.models import Class
+from subjects.models import Subject, ClassTeacherSubject
+from teachers.models import Teacher
+from datetime import time
+from django.db import transaction, IntegrityError
+from django.core.exceptions import ValidationError
+import random
 
-{% block title %}Timetable for {{ selected_class.name }}{% endblock %}
+class Command(BaseCommand):
+    help = "Generate timetables and time slots based on existing classes, subjects, and teachers."
 
-{% block extra_css %}
-  <style>
-    /* Highlight the first column in the table body */
-    .table tbody tr td:first-child, .day{
-      background-color: #f0f8ff;
-      font-weight: bold;
-    }
-    .all_days{
-      background-color: #f0f8ff !important;
-      font-weight: bold !important;
-    }
-  </style>
-{% endblock %}
+    def handle(self, *args, **kwargs):
+        self.create_time_slots()
+        self.generate_timetables()
+        self.stdout.write(self.style.SUCCESS("Successfully generated timetables and time slots."))
 
-{% block content %}
-  <!-- Page Header -->
-  <h2 class="text-center text-primary mb-2">Timetable for {{ selected_class.name }}</h2>
+    def create_time_slots(self):
+        """
+        Create predefined time slots, including breaks.
+        """
+        predefined_slots = [
+            {"start_time": time(10, 30), "end_time": time(11, 30), "is_break": False},
+            {"start_time": time(11, 30), "end_time": time(12, 30), "is_break": False},
+            {"start_time": time(12, 30), "end_time": time(13, 0), "is_break": True},  # Recess
+            {"start_time": time(13, 0), "end_time": time(14, 0), "is_break": False},
+            {"start_time": time(14, 0), "end_time": time(15, 0), "is_break": False},
+            {"start_time": time(15, 0), "end_time": time(15, 15), "is_break": True},  # Short Break
+            {"start_time": time(15, 15), "end_time": time(16, 15), "is_break": False},
+            {"start_time": time(16, 15), "end_time": time(17, 15), "is_break": False},
+        ]
 
-  <!-- Alert Messages -->
-  {% if error %}
-    <div class="alert alert-danger text-center" role="alert">{{ error }}</div>
-  {% endif %}
-  {% if message %}
-    <div class="alert alert-success text-center" role="alert">{{ message }}</div>
-  {% endif %}
+        for slot in predefined_slots:
+            TimeSlot.objects.get_or_create(
+                start_time=slot["start_time"],
+                end_time=slot["end_time"],
+                is_break=slot["is_break"]
+            )
 
-  <!-- Timetable Table -->
-  <div class="table-responsive">
-    <table class="table table-bordered table-hover shadow-sm">
-      <thead class="thead-dark">
-        <tr>
-          <th class="align-middle text-center">Time Slot</th>
-          {% for day in days %}
-            <th class="text-center align-middle all_days py-3">{{ day }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for ts in timeslots %}
-          <tr>
-            <td class="text-center align-middle">
-              {{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }}
-              {% if ts.is_break %}
-                <br><small class="text-muted">Break</small>
-              {% endif %}
-            </td>
-            {% if ts.is_break %}
-              <td colspan="{{ days|length }}" class="text-center text-muted align-middle">
-                {% with day_data=timetable|get_item:days.0 %}
-                  {% with cell=day_data|get_item:ts.id %}
-                    {{ cell.display }}
-                  {% endwith %}
-                {% endwith %}
-              </td>
-            {% else %}
-              {% for day in days %}
-                <td class="text-center align-middle">
-                  {% with day_data=timetable|get_item:day %}
-                    {% with cell=day_data|get_item:ts.id %}
-                      {% if cell %}
-                        <div class="text-primary font-weight-bold">{{ cell.subject }}</div>
-                        <div class="text-secondary"><small>{{ cell.teacher }}</small></div>
-                      {% else %}
-                        <span class="text-muted">--</span>
-                      {% endif %}
-                    {% endwith %}
-                  {% endwith %}
-                </td>
-              {% endfor %}
-            {% endif %}
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    def generate_timetables(self):
+        """
+        Generate timetable entries ensuring unique constraints and proper assignments.
+        """
+        days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-  <!-- Download Button -->
-  <div class="row mt-4">
-    <div class="col text-center">
-      <a href="{% url 'timetable_download' %}?class_name={{ selected_class.name }}" class="btn btn-outline-primary btn-lg">
-        <i class="fas fa-download"></i> Download Timetable
-      </a>
-    </div>
-  </div>
-{% endblock %}
+        # Define class and subject mappings
+        class_subject_mapping = {
+            "12th Science A Groups": [
+                "Mathematics",
+                "Chemistry",
+                "English",
+                "Physics",
+                "Computer",
+            ],
+            "12th Science B Groups": [
+                "Biology",
+                "Chemistry",
+                "English",
+                "Physics",
+                "Computer",
+            ],
+        }
 
-{% block extra_js %}
-  <script>
-    // Wait for the DOM to load, then auto-hide alerts after 3 seconds.
-    document.addEventListener("DOMContentLoaded", function() {
-      setTimeout(function() {
-        // Use a fade out effect for all alerts
-        document.querySelectorAll('.alert').forEach(function(alert) {
-          alert.style.transition = 'opacity 0.5s ease';
-          alert.style.opacity = '0';
-          // Remove the element after the fade out effect
-          setTimeout(function() {
-            alert.remove();
-          }, 500);
-        });
-      }, 3000);
-    });
-  </script>
-{% endblock %}
+        # Fetch classes and their subjects
+        classes = {}
+        for class_name, subject_names in class_subject_mapping.items():
+            class_obj = Class.objects.filter(name=class_name).first()
+            if not class_obj:
+                self.stdout.write(self.style.ERROR(f'Class "{class_name}" does not exist. Please create it first.'))
+                continue
+            subjects = Subject.objects.filter(name__in=subject_names)
+            if subjects.count() != len(subject_names):
+                missing_subjects = set(subject_names) - set(subjects.values_list('name', flat=True))
+                self.stdout.write(self.style.ERROR(f'Missing subjects for class "{class_name}": {", ".join(missing_subjects)}. Please create them first.'))
+                continue
+            classes[class_obj] = list(subjects)
+
+        if not classes:
+            self.stdout.write(self.style.ERROR('No valid classes found.'))
+            return
+
+        # Fetch time slots
+        time_slots = TimeSlot.objects.all().order_by('start_time')
+        break_time_slots = time_slots.filter(is_break=True)
+        teaching_time_slots = time_slots.filter(is_break=False)
+
+        # Fetch teachers and their qualifications
+        teachers = Teacher.objects.all()
+        if not teachers.exists():
+            self.stdout.write(self.style.ERROR('No teachers found. Please create teachers first.'))
+            return
+
+        # Build a mapping of subjects to their qualified teachers
+        subject_teacher_map = {}
+        for subject in Subject.objects.all():
+            qualified_teachers = Teacher.objects.filter(
+                teacher_class_subjects__subject=subject
+            ).distinct()
+            subject_teacher_map[subject] = list(qualified_teachers)
+
+        # Generate timetables for each class
+        for class_obj, class_subjects in classes.items():
+            self.stdout.write(self.style.SUCCESS(f'Generating timetable for class "{class_obj.name}"'))
+            for day in days_of_week:
+                # Shuffle subjects to vary the schedule
+                subjects_cycle = class_subjects.copy()
+                random.shuffle(subjects_cycle)
+                subject_index = 0
+
+                for time_slot in time_slots:
+                    # Handle break time slots
+                    if time_slot.is_break:
+                        # Create break entry
+                        try:
+                            Timetable.objects.create(
+                                class_model=class_obj,
+                                subject=None,
+                                teacher=None,
+                                time_slot=time_slot,
+                                day_of_week=day
+                            )
+                            self.stdout.write(
+                                self.style.SUCCESS(
+                                    f'Added break for "{class_obj.name}" at {time_slot} on {day}.'
+                                )
+                            )
+                        except Exception as e:
+                            self.stderr.write(self.style.ERROR(f"Error creating break entry: {e}"))
+                        continue
+
+                    # Get the next subject in the cycle
+                    subject = subjects_cycle[subject_index % len(subjects_cycle)]
+                    subject_index += 1
+
+                    # Get teachers qualified to teach this subject in this class
+                    qualified_teachers = Teacher.objects.filter(
+                        teacher_class_subjects__class_obj=class_obj,
+                        teacher_class_subjects__subject=subject
+                    ).distinct()
+
+                    # Exclude teachers already scheduled at this time slot
+                    available_teachers = qualified_teachers.exclude(
+                        timetables__day_of_week=day,
+                        timetables__time_slot=time_slot
+                    )
+
+                    if not available_teachers.exists():
+                        self.stdout.write(self.style.WARNING(
+                            f'No available teachers for subject "{subject.name}" in class "{class_obj.name}" at {time_slot} on {day}.'
+                        ))
+                        continue
+
+                    # Select a teacher
+                    teacher = random.choice(list(available_teachers))
+
+                    # Create the timetable entry
+                    try:
+                        with transaction.atomic():
+                            tt_entry = Timetable.objects.create(
+                                class_model=class_obj,
+                                subject=subject,
+                                teacher=teacher,
+                                time_slot=time_slot,
+                                day_of_week=day
+                            )
+                            self.stdout.write(self.style.SUCCESS(
+                                f'Assigned "{subject.name}" to "{class_obj.name}" with teacher "{teacher.name}" at {time_slot} on {day}.'
+                            ))
+                    except ValidationError as ve:
+                        self.stderr.write(self.style.ERROR(f"Validation error: {ve.messages}"))
+                    except IntegrityError as ie:
+                        self.stderr.write(self.style.ERROR(f"Integrity error: {ie}"))
+                    except Exception as e:
+                        self.stderr.write(self.style.ERROR(f"Error creating timetable entry: {e}"))
+
+        self.stdout.write(self.style.SUCCESS("Timetable generation complete."))

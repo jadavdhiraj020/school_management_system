@@ -16,6 +16,11 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# settings.py
+
+LOGIN_REDIRECT_URL = 'student_list'
+LOGOUT_REDIRECT_URL = 'login'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -26,7 +31,7 @@ SECRET_KEY = "django-insecure-*(java6@7(v@t_229^r19pacs1w44o_9b$*j@@xk--cpsbsiu6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -39,11 +44,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # new added
+    "accounts",
     "students",
     "teachers",
     "school_class",
     "subjects",
     "time_tables",
+    "attendance",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"  # or 'bootstrap5' if you prefer
@@ -83,13 +90,13 @@ WSGI_APPLICATION = "school_management.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'SCHOOL_MANAGEMENT_DATABASE',
-        'USER': 'dhiraj',  # or 'dhiraj' if you created a new user
-        'PASSWORD': 'new@1235',
-        'HOST': 'localhost',
-        'PORT': '3306',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "SCHOOL_MANAGEMENT_DATABASE",
+        "USER": "dhiraj",  # or 'dhiraj' if you created a new user
+        "PASSWORD": "new@1235",
+        "HOST": "localhost",
+        "PORT": "3306",
     }
 }
 

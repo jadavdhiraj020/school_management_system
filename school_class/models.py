@@ -26,3 +26,7 @@ class Class(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["name"], name="unique_class_name")
         ]
+        permissions = [
+            ('can_view_class', 'Can view class'),
+            ('can_edit_class', 'Can edit class'),
+        ]

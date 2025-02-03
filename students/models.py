@@ -1,10 +1,6 @@
 from django.db import models
 from school_class.models import Class
 from subjects.models import Subject
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.core.exceptions import ValidationError
-
 
 class Student(models.Model):
     name = models.CharField(max_length=100)
@@ -24,3 +20,7 @@ class Student(models.Model):
     class Meta:
         verbose_name = "Student"
         verbose_name_plural = "Students"
+        permissions = [
+            ('can_view_student', 'Can view student'),
+            ('can_edit_student', 'Can edit student'),
+        ]

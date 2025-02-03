@@ -13,6 +13,10 @@ class TimeSlot(models.Model):
     class Meta:
         unique_together = ("start_time", "end_time")
         ordering = ["start_time"]
+        permissions = [
+            ("can_view_timeslot", "Can view time slot"),
+            ("can_edit_timeslot", "Can edit time slot"),
+        ]
 
     def __str__(self):
         if self.is_break:
@@ -53,6 +57,10 @@ class Timetable(models.Model):
     class Meta:
         unique_together = ("class_model", "time_slot", "day_of_week")
         ordering = ["day_of_week", "time_slot__start_time"]
+        permissions = [
+            ("can_view_timetable", "Can view timetable"),
+            ("can_edit_timetable", "Can edit timetable"),
+        ]
 
     def clean(self):
         if not self.time_slot.is_break:

@@ -10,3 +10,9 @@ class Teacher(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        permissions = [
+            ('can_view_teacher', 'Can view teacher'),
+            ('can_edit_teacher', 'Can edit teacher'),
+        ]
