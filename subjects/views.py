@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from common.mixin import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
@@ -9,25 +9,23 @@ from django.views.generic import (
 )
 from django.db import IntegrityError, transaction
 from .models import Subject, ClassTeacherSubject
-from school_class.models import Class
-from teachers.models import Teacher
 from .forms import SubjectForm
 
 
-class SubjectListView(ListView):
+class SubjectListView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
     model = Subject
     template_name = "subjects/subject_list.html"
     context_object_name = "subjects"
     ordering = ["name"]
 
 
-class SubjectDetailView(DetailView):
+class SubjectDetailView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DetailView):
     model = Subject
     template_name = "subjects/subject_detail.html"
     context_object_name = "subject"
 
 
-class SubjectCreateView(CreateView):
+class SubjectCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
     model = Subject
     form_class = SubjectForm
     template_name = "subjects/subject_form.html"
@@ -58,7 +56,7 @@ class SubjectCreateView(CreateView):
                 )
 
 
-class SubjectUpdateView(UpdateView):
+class SubjectUpdateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
     model = Subject
     form_class = SubjectForm
     template_name = "subjects/subject_form.html"
@@ -92,7 +90,7 @@ class SubjectUpdateView(UpdateView):
                 )
 
 
-class SubjectDeleteView(DeleteView):
+class SubjectDeleteView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DeleteView):
     model = Subject
     template_name = "subjects/subject_confirm_delete.html"
     context_object_name = "subject"

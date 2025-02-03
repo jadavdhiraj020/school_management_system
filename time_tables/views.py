@@ -27,6 +27,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.pdfgen import canvas
 
 # Local App Imports
+from common.mixin import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
 from .models import Timetable, TimeSlot
 from .forms import TimetableForm, TimeSlotForm
 from teachers.models import Teacher
@@ -38,16 +39,14 @@ from school_class.models import Class
 # CRUD Views (existing, unchanged)
 ###############################################
 
-
-class TimetableListView(ListView):
+class TimetableListView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
     model = Timetable
     template_name = "time_tables/timetable_list.html"
     context_object_name = "timetables"
+    permission_required = "timetable.can_view_timetable"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # Get class selection
         selected_class_name = self.request.GET.get("class_name")
         context["selected_class"] = None
         context["available_classes"] = Class.objects.all()
@@ -57,92 +56,75 @@ class TimetableListView(ListView):
                 context["selected_class"] = Class.objects.get(name=selected_class_name)
             except Class.DoesNotExist:
                 messages.error(self.request, f"Class {selected_class_name} not found")
-                pass
-
-        # Prepare timetable data structure
-        context["days"] = [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-        ]
+        context["days"] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
         context["timeslots"] = TimeSlot.objects.all().order_by("start_time")
 
         timetables = {}
         if context["selected_class"]:
-            # Fetch timetable entries for selected class
-            entries = Timetable.objects.filter(
-                class_model=context["selected_class"]
-            ).select_related("time_slot", "subject", "teacher")
-
-            # Create timetable structure
+            entries = Timetable.objects.filter(class_model=context["selected_class"]).select_related("time_slot", "subject", "teacher")
             for day in context["days"]:
                 day_entries = entries.filter(day_of_week=day)
                 timetables[day] = {entry.time_slot.id: entry for entry in day_entries}
-
         context["timetables"] = timetables
         return context
 
-
-class TimetableDetailView(DetailView):
+class TimetableDetailView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DetailView):
     model = Timetable
     template_name = "time_tables/timetable_detail.html"
     context_object_name = "timetable"
+    permission_required = "timetable.can_view_timetable"
 
-
-class TimetableCreateView(CreateView):
+class TimetableCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
     model = Timetable
     form_class = TimetableForm
     template_name = "time_tables/timetable_form.html"
     success_url = reverse_lazy("timetable_list")
+    permission_required = "timetable.can_edit_timetable"
 
-
-class TimetableUpdateView(UpdateView):
+class TimetableUpdateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
     model = Timetable
     form_class = TimetableForm
     template_name = "time_tables/timetable_form.html"
     success_url = reverse_lazy("timetable_list")
+    permission_required = "timetable.can_edit_timetable"
 
-
-class TimetableDeleteView(DeleteView):
+class TimetableDeleteView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DeleteView):
     model = Timetable
     template_name = "time_tables/timetable_confirm_delete.html"
     context_object_name = "timetable"
     success_url = reverse_lazy("timetable_list")
-
+    permission_required = "timetable.can_edit_timetable"
 
 class TimeSlotListView(ListView):
     model = TimeSlot
-    template_name = "time_tables/timeslot_list.html"
+    template_name = "time_slot/time_slot_list.html"
     context_object_name = "timeslots"
     ordering = ["start_time"]
 
 
 class TimeSlotDetailView(DetailView):
     model = TimeSlot
-    template_name = "time_tables/timeslot_detail.html"
+    template_name = "time_slot/time_slot_detail.html"
     context_object_name = "timeslot"
 
 
 class TimeSlotCreateView(CreateView):
     model = TimeSlot
     form_class = TimeSlotForm
-    template_name = "time_tables/timeslot_form.html"
+    template_name = "time_slot/time_slot_form.html"
     success_url = reverse_lazy("timeslot_list")
 
 
 class TimeSlotUpdateView(UpdateView):
     model = TimeSlot
     form_class = TimeSlotForm
-    template_name = "time_tables/timeslot_form.html"
+    template_name = "time_slot/time_slot_form.html"
     success_url = reverse_lazy("timeslot_list")
 
 
 class TimeSlotDeleteView(DeleteView):
     model = TimeSlot
-    template_name = "time_tables/timeslot_confirm_delete.html"
+    template_name = "time_slot/time_slot_confirm_delete.html"
     context_object_name = "timeslot"
     success_url = reverse_lazy("timeslot_list")
 
@@ -152,7 +134,7 @@ class TimeSlotDeleteView(DeleteView):
 ###############################################
 
 
-class TimetableGenerateView(TemplateView):
+class TimetableGenerateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):
     template_name = "time_tables/timetable_generate.html"
 
     def get_context_data(self, **kwargs):
@@ -324,7 +306,7 @@ def add_page_number(canvas_obj, doc):
     canvas_obj.setFont("Helvetica", 9)
     canvas_obj.drawRightString(doc.pagesize[0] - 40, 20, text)
 
-class TimetableDownloadView(View):
+class TimetableDownloadView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         target_class_name = request.GET.get("class_name", "")
         try:

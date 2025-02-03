@@ -1,3 +1,4 @@
+from common.mixin import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
 from django.views.generic import (
     ListView,
     DetailView,
@@ -11,7 +12,7 @@ from students.forms import StudentForm  # Ensure this import is correct
 
 
 # List View: Display all students
-class StudentListView(ListView):
+class StudentListView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
     model = Student
     template_name = "students/student_list.html"
     context_object_name = "students"
@@ -25,14 +26,14 @@ class StudentListView(ListView):
 
 
 # Detail View: Display a single student's details
-class StudentDetailView(DetailView):
+class StudentDetailView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DetailView):
     model = Student
     template_name = "students/student_detail.html"
     context_object_name = "student"
 
 
 # Create View: Add a new student
-class StudentCreateView(CreateView):
+class StudentCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
     model = Student
     form_class = StudentForm
     template_name = "students/student_form.html"
@@ -40,7 +41,7 @@ class StudentCreateView(CreateView):
 
 
 # Update View: Edit an existing student
-class StudentUpdateView(UpdateView):
+class StudentUpdateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
     model = Student
     form_class = StudentForm
     template_name = "students/student_form.html"
@@ -48,7 +49,7 @@ class StudentUpdateView(UpdateView):
 
 
 # Delete View: Delete a student
-class StudentDeleteView(DeleteView):
+class StudentDeleteView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DeleteView):
     model = Student
     template_name = "students/student_confirm_delete.html"
     success_url = reverse_lazy("student_list")
