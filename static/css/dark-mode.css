@@ -1,0 +1,38 @@
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.dark-mode .card {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark-mode .table {
+    --bs-table-bg: #2d2d2d;
+    --bs-table-striped-bg: #252525;
+    --bs-table-hover-bg: #353535;
+    color: #fff;
+}
+
+.dark-mode .form-control {
+    background-color: #353535;
+    border-color: #454545;
+    color: #fff;
+}
+
+.dark-mode .input-group-text {
+    background-color: #454545;
+    border-color: #454545;
+    color: #fff;
+}
+
+.dark-mode .breadcrumb {
+    --bs-breadcrumb-divider-color: #888;
+    --bs-breadcrumb-item-active-color: #ccc;
+}
+
+.dark-mode .text-muted {
+    color: #aaa !important;
+}
