@@ -55,7 +55,7 @@ class LoginView(FormView):
         return super().form_invalid(form)
 
 
-class LogoutView(RoleRequiredMixin, TemplateView):
+class LogoutView(TemplateView):
     """
     Handles user logout and redirects to login page.
     """

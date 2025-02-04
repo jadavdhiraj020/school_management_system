@@ -4,7 +4,6 @@ from subjects.models import Subject, ClassTeacherSubject
 from teachers.models import Teacher
 from django.core.exceptions import ValidationError
 
-
 class TimeSlot(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -22,7 +21,6 @@ class TimeSlot(models.Model):
         if self.is_break:
             return f"Break: {self.start_time.strftime('%I:%M %p')} - {self.end_time.strftime('%I:%M %p')}"
         return f"{self.start_time.strftime('%I:%M %p')} - {self.end_time.strftime('%I:%M %p')}"
-
 
 class Timetable(models.Model):
     DAYS_OF_WEEK_CHOICES = [
@@ -108,4 +106,4 @@ class Timetable(models.Model):
     def __str__(self):
         if self.time_slot.is_break:
             return f"{self.day_of_week} - {self.time_slot} (Break)"
-        return f"{self.class_model.name} - {self.subject.name} by {self.teacher.name} on {self.day_of_week} at {self.time_slot}"
+        return f"{self.class_model.name} - {self.subject.name} by {self.teacher.user.get_full_name()} on {self.day_of_week} at {self.time_slot}"

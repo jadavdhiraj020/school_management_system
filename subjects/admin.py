@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ['name']
-    filter_horizontal = ('classes', 'teachers')  # for Many-to-Many relationship
+    # Removed filter_horizontal since Subject does not have direct M2M fields for classes/teachers
 
 admin.site.register(Subject, SubjectAdmin)
 
@@ -21,7 +21,7 @@ admin.site.register(ClassTeacherSubject, ClassTeacherSubjectAdmin)
 # Adding Permissions to Admin
 def add_permissions():
     content_type = ContentType.objects.get_for_model(Subject)
-    permission, created = Permission.objects.get_or_create(
+    Permission.objects.get_or_create(
         codename='can_assign_subject',
         name='Can assign subject to class teacher',
         content_type=content_type,

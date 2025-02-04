@@ -1,4 +1,3 @@
-# attendance/management/commands/generate_attendance.py
 from django.core.management.base import BaseCommand
 from attendance.models import Attendance
 from students.models import Student
@@ -84,10 +83,10 @@ class Command(BaseCommand):
                 )
                 created_count += 1
                 self.stdout.write(self.style.SUCCESS(
-                    f"Created attendance for {student.name} on {attendance_date}"
+                    f"Created attendance for {str(student)} on {attendance_date}"
                 ))
             except Exception as e:
                 self.stdout.write(self.style.ERROR(
-                    f"Failed to create attendance for {student.name}: {e}"
+                    f"Failed to create attendance for {str(student)}: {e}"
                 ))
         self.stdout.write(self.style.SUCCESS(f"Successfully created {created_count} attendance records."))

@@ -26,6 +26,7 @@ class ClassTeacherSubject(models.Model):
     )
 
     class Meta:
+        # You can remove unique_together if using UniqueConstraint below
         unique_together = ("class_obj", "teacher", "subject")
         constraints = [
             models.UniqueConstraint(

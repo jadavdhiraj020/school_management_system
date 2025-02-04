@@ -12,15 +12,20 @@
       <!-- Class Information -->
       <div class="mb-4">
         <p><strong>Name:</strong> {{ class.name }}</p>
-        <p><strong>Class Teacher:</strong> {{ class.class_teacher.name }}</p>
+        <p><strong>Class Teacher:</strong>
+          {% if class.class_teacher %}
+            {{ class.class_teacher.user.get_full_name }}
+          {% else %}
+            Not assigned.
+          {% endif %}
+        </p>
         <p><strong>Teachers:</strong>
           {% for teacher in class.teachers.all %}
             <span class="badge bg-info">
               <a href="{% url 'teacher_detail' teacher.id %}" class="text-dark text-decoration-none">
-                {{ teacher.name }}
+                {{ teacher.user.get_full_name }}
               </a>
             </span>
-            {% if not forloop.last %} {% endif %}
           {% empty %}
             <span>No teachers assigned.</span>
           {% endfor %}
@@ -30,7 +35,6 @@
             <span class="badge bg-secondary">
               {{ subject.name }}
             </span>
-            {% if not forloop.last %} {% endif %}
           {% empty %}
             <span>No subjects assigned.</span>
           {% endfor %}

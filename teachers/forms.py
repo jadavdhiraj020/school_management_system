@@ -13,7 +13,7 @@ class TeacherForm(ModelForm):
             'age': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter Age'}),
             'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Phone Number'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter Address'}),
-            'subject': forms.CheckboxSelectMultiple(attrs={'class': 'form-control'}),
+            'subject': forms.CheckboxSelectMultiple(),
         }
         labels = {
             'user': 'Teacher (User)',

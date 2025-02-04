@@ -1,5 +1,5 @@
 from django import forms
-from .models import Subject, ClassTeacherSubject
+from .models import Subject
 from school_class.models import Class
 from teachers.models import Teacher
 

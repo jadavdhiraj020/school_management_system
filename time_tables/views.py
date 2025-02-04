@@ -27,7 +27,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.pdfgen import canvas
 
 # Local App Imports
-from core.mixins import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
+from core.mixins import RoleRequiredMixin
 from .models import Timetable, TimeSlot
 from .forms import TimetableForm, TimeSlotForm
 from teachers.models import Teacher
@@ -36,14 +36,14 @@ from school_class.models import Class
 
 
 ###############################################
-# CRUD Views (existing, unchanged)
+# CRUD Views for Timetable
 ###############################################
 
-class TimetableListView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+class TimetableListView(RoleRequiredMixin, ListView):
     model = Timetable
     template_name = "time_tables/timetable_list.html"
     context_object_name = "timetables"
-    permission_required = "timetable.can_view_timetable"
+    permission_required = "time_tables.can_view_timetable"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -68,32 +68,36 @@ class TimetableListView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin,
         context["timetables"] = timetables
         return context
 
-class TimetableDetailView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DetailView):
+class TimetableDetailView(RoleRequiredMixin, DetailView):
     model = Timetable
     template_name = "time_tables/timetable_detail.html"
     context_object_name = "timetable"
-    permission_required = "timetable.can_view_timetable"
+    permission_required = "time_tables.can_view_timetable"
 
-class TimetableCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class TimetableCreateView(RoleRequiredMixin, CreateView):
     model = Timetable
     form_class = TimetableForm
     template_name = "time_tables/timetable_form.html"
     success_url = reverse_lazy("timetable_list")
-    permission_required = "timetable.can_edit_timetable"
+    permission_required = "time_tables.can_edit_timetable"
 
-class TimetableUpdateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+class TimetableUpdateView(RoleRequiredMixin, UpdateView):
     model = Timetable
     form_class = TimetableForm
     template_name = "time_tables/timetable_form.html"
     success_url = reverse_lazy("timetable_list")
-    permission_required = "timetable.can_edit_timetable"
+    permission_required = "time_tables.can_edit_timetable"
 
-class TimetableDeleteView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DeleteView):
+class TimetableDeleteView(RoleRequiredMixin, DeleteView):
     model = Timetable
     template_name = "time_tables/timetable_confirm_delete.html"
     context_object_name = "timetable"
     success_url = reverse_lazy("timetable_list")
-    permission_required = "timetable.can_edit_timetable"
+    permission_required = "time_tables.can_edit_timetable"
+
+###############################################
+# CRUD Views for TimeSlot
+###############################################
 
 class TimeSlotListView(ListView):
     model = TimeSlot
@@ -101,12 +105,10 @@ class TimeSlotListView(ListView):
     context_object_name = "timeslots"
     ordering = ["start_time"]
 
-
 class TimeSlotDetailView(DetailView):
     model = TimeSlot
     template_name = "time_slot/time_slot_detail.html"
     context_object_name = "timeslot"
-
 
 class TimeSlotCreateView(CreateView):
     model = TimeSlot
@@ -114,13 +116,11 @@ class TimeSlotCreateView(CreateView):
     template_name = "time_slot/time_slot_form.html"
     success_url = reverse_lazy("timeslot_list")
 
-
 class TimeSlotUpdateView(UpdateView):
     model = TimeSlot
     form_class = TimeSlotForm
     template_name = "time_slot/time_slot_form.html"
     success_url = reverse_lazy("timeslot_list")
-
 
 class TimeSlotDeleteView(DeleteView):
     model = TimeSlot
@@ -129,12 +129,7 @@ class TimeSlotDeleteView(DeleteView):
     success_url = reverse_lazy("timeslot_list")
 
 
-###############################################
-# New Dynamic Scheduling and Saving View with OR-Tools
-###############################################
-
-
-class TimetableGenerateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):
+class TimetableGenerateView(RoleRequiredMixin, TemplateView):
     template_name = "time_tables/timetable_generate.html"
 
     def get_context_data(self, **kwargs):
@@ -306,7 +301,7 @@ def add_page_number(canvas_obj, doc):
     canvas_obj.setFont("Helvetica", 9)
     canvas_obj.drawRightString(doc.pagesize[0] - 40, 20, text)
 
-class TimetableDownloadView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, View):
+class TimetableDownloadView(RoleRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         target_class_name = request.GET.get("class_name", "")
         try:

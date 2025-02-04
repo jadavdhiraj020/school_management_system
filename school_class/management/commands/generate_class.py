@@ -7,7 +7,6 @@ from django.db.utils import IntegrityError
 from django.db import transaction
 import random
 
-
 class Command(BaseCommand):
     help = "Generate classes with teachers, subjects, and assign students"
 
@@ -65,19 +64,14 @@ class Command(BaseCommand):
                 )
 
                 # Assign subjects to the class
-                # For simplicity, assign all available subjects
-                class_subjects = list(
-                    subjects.order_by("?")[:6]
-                )  # Adjust the number as needed
+                # For simplicity, assign all available subjects (or adjust as needed)
+                class_subjects = list(subjects.order_by("?")[:6])
 
                 # For each subject, assign a random teacher
                 for subject in class_subjects:
-                    # Select a random teacher
                     teaching_teacher = random.choice(teachers)
-
                     try:
                         with transaction.atomic():
-                            # Create the ClassTeacherSubject entry
                             ClassTeacherSubject.objects.create(
                                 class_obj=class_instance,
                                 teacher=teaching_teacher,
@@ -85,7 +79,7 @@ class Command(BaseCommand):
                             )
                             self.stdout.write(
                                 self.style.SUCCESS(
-                                    f"Assigned subject '{subject.name}' to class '{class_name}' with teacher '{teaching_teacher.name}'."
+                                    f"Assigned subject '{subject.name}' to class '{class_name}' with teacher '{teaching_teacher.user.get_full_name()}'."
                                 )
                             )
                     except IntegrityError as e:
@@ -97,16 +91,14 @@ class Command(BaseCommand):
                         continue
 
                 # Assign up to 50 random students to the class
-                students_for_class = students.filter(class_obj__isnull=True).order_by(
-                    "?"
-                )[:50]
+                students_for_class = students.filter(class_obj__isnull=True).order_by("?")[:50]
                 for student in students_for_class:
                     student.class_obj = class_instance
                     student.save()
 
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f'Created class: "{class_name}" with class teacher: {class_teacher.name}, '
+                        f'Created class: "{class_name}" with class teacher: {class_teacher.user.get_full_name()}, '
                         f"{len(class_subjects)} subjects assigned, and {students_for_class.count()} students."
                     )
                 )

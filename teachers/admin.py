@@ -3,37 +3,40 @@ from django.contrib.contenttypes.models import ContentType
 from teachers.models import Teacher
 from django.contrib.auth.models import Permission
 
-
-# Register Teacher model in admin
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ('user', 'subject', 'phone', 'email', 'address')
-    search_fields = ['user__username', 'user__email', 'subject__name']  # Searching by user info and subject
-    list_filter = ('subject',)  # Filtering by subject
-    ordering = ('user',)  # Sorting by user name
+    list_display = ('get_full_name', 'get_email', 'subject_list', 'phone', 'address')
+    search_fields = ['user__username', 'user__email', 'subject__name']
+    list_filter = ('subject',)
+    ordering = ('user__first_name',)
 
-    # Adding custom permissions for teacher model
+    def get_full_name(self, obj):
+        return obj.user.get_full_name()
+    get_full_name.short_description = 'Name'
+
+    def get_email(self, obj):
+        return obj.user.email
+    get_email.short_description = 'Email'
+
+    def subject_list(self, obj):
+        return ", ".join([str(s) for s in obj.subject.all()])
+    subject_list.short_description = 'Subjects'
+
     def has_delete_permission(self, request, obj=None):
-        if request.user.role == 'admin':
-            return True
-        return False
-
+        return request.user.role == 'admin'
 
 admin.site.register(Teacher, TeacherAdmin)
 
-
-# Adding Permissions to Admin (if necessary for future permissions control)
+# Adding custom permissions (if needed for future control)
 def add_permissions():
-    # Adding custom permission to allow admin to manage subjects for teachers
-    permission, created = Permission.objects.get_or_create(
+    Permission.objects.get_or_create(
         codename='can_assign_teacher',
         name='Can assign teacher to class',
         content_type=ContentType.objects.get_for_model(Teacher),
     )
-    permission, created = Permission.objects.get_or_create(
+    Permission.objects.get_or_create(
         codename='can_view_teacher',
         name='Can view teacher details',
         content_type=ContentType.objects.get_for_model(Teacher),
     )
-
 
 add_permissions()

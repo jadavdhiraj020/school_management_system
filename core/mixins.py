@@ -1,3 +1,4 @@
+# core/mixins.py
 import logging
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import redirect
@@ -15,7 +16,7 @@ class RoleRequiredMixin(UserPassesTestMixin):
     - Logs unauthorized access attempts.
     """
     allowed_roles = []
-    redirect_url = 'accounts/login'  # Default redirect for unauthorized users
+    redirect_url = 'login'  # Default redirect for unauthorized users
 
     def test_func(self):
         """Check if the user is allowed to access the view."""

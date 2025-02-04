@@ -1,4 +1,3 @@
-<!-- Updated timetable_list.html -->
 {% extends "base.html" %}
 {% load dict_extras %}
 
@@ -44,7 +43,6 @@
     </form>
   </div>
 
-
   {% if selected_class %}
     <!-- Timetable Grid -->
     <div class="table-responsive mt-3">
@@ -67,23 +65,19 @@
                 {% endif %}
               </td>
               {% if ts.is_break %}
-                <!-- Merge all columns for breaks -->
                 <td colspan="{{ days|length }}" class="text-center text-muted align-middle">
-                  {% with day_data=timetables|get_item:days.0 %}
-                    {% with cell=day_data|get_item:ts.id %}
-                      Break ({{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }})
-                    {% endwith %}
-                  {% endwith %}
+                  Break ({{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }})
                 </td>
               {% else %}
-                <!-- Normal timeslots -->
                 {% for day in days %}
                   <td class="text-center align-middle">
                     {% with timetable_entry=timetables|get_item:day %}
                       {% with cell=timetable_entry|get_item:ts.id %}
                         {% if cell %}
                           <div class="text-primary font-weight-bold">{{ cell.subject.name }}</div>
-                          <div class="text-secondary"><small>{{ cell.teacher.name }}</small></div>
+                          <div class="text-secondary">
+                            <small>{{ cell.teacher.user.get_full_name }}</small>
+                          </div>
                         {% else %}
                           <span class="text-muted">--</span>
                         {% endif %}

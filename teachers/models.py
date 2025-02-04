@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import CustomUser  # Importing CustomUser
+from accounts.models import CustomUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Teacher(models.Model):
@@ -37,11 +37,9 @@ class Teacher(models.Model):
     )
 
     def __str__(self):
-        """Return full name if available, otherwise username."""
         return self.user.get_full_name() or self.user.username
 
     def save(self, *args, **kwargs):
-        """Override save method for data validation and consistency."""
         self.user.first_name = self.user.first_name.capitalize()
         self.user.last_name = self.user.last_name.capitalize()
         super().save(*args, **kwargs)

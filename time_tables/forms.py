@@ -18,12 +18,9 @@ class TimeSlotForm(forms.ModelForm):
         cleaned_data = super().clean()
         start_time = cleaned_data.get("start_time")
         end_time = cleaned_data.get("end_time")
-
         if start_time and end_time and start_time >= end_time:
             raise forms.ValidationError("Start time must be before end time.")
-
         return cleaned_data
-
 
 class TimetableForm(forms.ModelForm):
     class_model = forms.ModelChoiceField(queryset=Class.objects.all(), label="Class")
@@ -50,30 +47,22 @@ class TimetableForm(forms.ModelForm):
         time_slot = cleaned_data.get("time_slot")
         day_of_week = cleaned_data.get("day_of_week")
 
-        # If the time slot is a break, ensure no subject or teacher is assigned
         if time_slot and time_slot.is_break:
             if subject or teacher:
                 raise forms.ValidationError("Break slots cannot be assigned subjects or teachers.")
-
-        # Ensure both subject and teacher are provided for non-break slots
-        if time_slot and not time_slot.is_break:
+        elif time_slot and not time_slot.is_break:
             if not subject or not teacher:
                 raise forms.ValidationError("Both subject and teacher are required for non-break slots.")
-
-            # Check if the teacher is qualified to teach the subject in the given class
             if not ClassTeacherSubject.objects.filter(
                 teacher=teacher, subject=subject, class_obj=class_model
             ).exists():
                 raise forms.ValidationError(f"Teacher {teacher} is not assigned to teach {subject} in this class.")
-
-            # Check for conflicts in timetable
             if Timetable.objects.filter(
                 class_model=class_model, time_slot=time_slot, day_of_week=day_of_week
             ).exists():
                 raise forms.ValidationError(
                     f"Class {class_model} already has a timetable entry at this time on {day_of_week}."
                 )
-
             if Timetable.objects.filter(
                 teacher=teacher, time_slot=time_slot, day_of_week=day_of_week
             ).exists():

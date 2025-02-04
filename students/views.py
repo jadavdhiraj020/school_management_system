@@ -17,7 +17,7 @@ class StudentListView(RoleRequiredMixin, ListView):
     template_name = "students/student_list.html"
     context_object_name = "students"
     paginate_by = 10
-    ordering = ["name"]
+    ordering = ["user__first_name"]
     allowed_roles = ['admin', 'teacher', 'student']
 
     def get_context_data(self, **kwargs):

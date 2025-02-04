@@ -99,8 +99,7 @@ class Command(BaseCommand):
 
                 # Create the student instance
                 student = Student.objects.create(
-                    name=name,
-                    email=email,
+                    user=user,
                     age=age,
                     phone=phone,
                     address=address,

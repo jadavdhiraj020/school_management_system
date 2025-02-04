@@ -4,12 +4,12 @@
 
 {% block content %}
     <div class="container mt-5">
-        <h1 class="display-4 text-center">{{ teacher.name }}</h1>
+        <h1 class="display-4 text-center">{{ teacher.user.get_full_name }}</h1>
 
         <!-- Teacher Info -->
         <div class="row mb-4">
             <div class="col-md-6">
-                <p><strong>Email:</strong> {{ teacher.email }}</p>
+                <p><strong>Email:</strong> {{ teacher.user.email }}</p>
                 <p><strong>Age:</strong> {{ teacher.age }}</p>
                 <p><strong>Phone:</strong> {{ teacher.phone }}</p>
                 <p><strong>Joining Date:</strong> {{ teacher.joining_date }}</p>
@@ -19,24 +19,17 @@
             </div>
         </div>
 
-        <!-- Classes Managed -->
-        {% if teacher.managed_classes %}
-            <p><strong>Class Teacher of:</strong> {{ teacher.managed_classes.name }}</p>
-        {% endif %}
-
         <!-- Subjects Taught -->
-        {% if teacher.teacher_class_subjects.exists %}
+        {% if teacher.subject.all %}
             <p><strong>Subjects Taught:</strong></p>
             <ul>
-                {% for ct in teacher.teacher_class_subjects.all %}
-                    <li>
-                        {{ ct.subject.name }} in {{ ct.class_obj.name }}
-                    </li>
+                {% for subj in teacher.subject.all %}
+                    <li>{{ subj.name }}</li>
                 {% endfor %}
             </ul>
         {% endif %}
 
-        <!-- Back to List Button -->
+        <!-- Back Button -->
         <div class="text-center">
             <a href="{% url 'teacher_list' %}" class="btn btn-primary btn-lg">
                 <i class="fas fa-arrow-left"></i> Back to List
