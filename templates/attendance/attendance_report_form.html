@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="bg-white shadow-md rounded my-6 p-6 max-w-lg mx-auto">
-  <h2 class="text-2xl font-bold mb-4">Generate Attendance Report (PDF)</h2>
-  <form method="post">
-    {% csrf_token %}
-    <div class="space-y-4">
-      {{ form.as_p }}
+    <div class="bg-white shadow-md rounded my-6 p-6 max-w-lg mx-auto">
+        <h2 class="text-2xl font-bold mb-4">Generate Attendance Report (PDF)</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-4">
+                {{ form.as_p }}
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Generate PDF
+                </button>
+            </div>
+        </form>
     </div>
-    <div class="mt-4">
-      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Generate PDF
-      </button>
-    </div>
-  </form>
-</div>
 {% endblock %}

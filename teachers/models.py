@@ -2,6 +2,7 @@ from django.db import models
 from accounts.models import CustomUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+
 class Teacher(models.Model):
     """
     Teacher Model representing teachers in the school.
@@ -35,6 +36,11 @@ class Teacher(models.Model):
         blank=True,
         help_text="Subjects the teacher is teaching."
     )
+
+    @property
+    def name(self):
+        # This property mimics a 'name' attribute for compatibility.
+        return self.user.get_full_name() or self.user.username
 
     def __str__(self):
         return self.user.get_full_name() or self.user.username

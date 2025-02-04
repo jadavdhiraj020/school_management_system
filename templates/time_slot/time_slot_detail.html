@@ -3,23 +3,23 @@
 {% block title %}Time Slot Detail{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white text-center">
-            <h3>Time Slot Detail</h3>
-        </div>
-        <div class="card-body">
-            <p><strong>Start Time:</strong> {{ time_slot.start_time|time:"H:i" }}</p>
-            <p><strong>End Time:</strong> {{ time_slot.end_time|time:"H:i" }}</p>
-            <p><strong>Is Break:</strong> {% if time_slot.is_break %}Yes{% else %}No{% endif %}</p>
-            
-            <!-- Back Button -->
-            <div class="text-center mt-4">
-                <a href="{% url 'timeslot_list' %}" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left"></i> Back to List
-                </a>
+    <div class="container mt-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white text-center">
+                <h3>Time Slot Detail</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Start Time:</strong> {{ time_slot.start_time|time:"H:i" }}</p>
+                <p><strong>End Time:</strong> {{ time_slot.end_time|time:"H:i" }}</p>
+                <p><strong>Is Break:</strong> {% if time_slot.is_break %}Yes{% else %}No{% endif %}</p>
+
+                <!-- Back Button -->
+                <div class="text-center mt-4">
+                    <a href="{% url 'timeslot_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

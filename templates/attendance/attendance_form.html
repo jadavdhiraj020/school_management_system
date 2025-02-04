@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="bg-white shadow-md rounded my-6 p-6 max-w-lg mx-auto">
-  <h2 class="text-2xl font-bold mb-4">{% if object %}Edit Attendance{% else %}Mark Attendance{% endif %}</h2>
-  <form method="post">
-    {% csrf_token %}
-    <div class="space-y-4">
-      {{ form.as_p }}
+    <div class="bg-white shadow-md rounded my-6 p-6 max-w-lg mx-auto">
+        <h2 class="text-2xl font-bold mb-4">{% if object %}Edit Attendance{% else %}Mark Attendance{% endif %}</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-4">
+                {{ form.as_p }}
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Save
+                </button>
+            </div>
+        </form>
+        <div class="mt-4">
+            <a href="{% url 'attendance-list' %}" class="text-blue-500 hover:underline">
+                Back to Attendance List
+            </a>
+        </div>
     </div>
-    <div class="mt-4">
-      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Save
-      </button>
-    </div>
-  </form>
-  <div class="mt-4">
-    <a href="{% url 'attendance-list' %}" class="text-blue-500 hover:underline">
-      Back to Attendance List
-    </a>
-  </div>
-</div>
 {% endblock %}

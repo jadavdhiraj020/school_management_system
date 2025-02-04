@@ -1,6 +1,0 @@
-check this apps functionality as respect above me give you code,, beacause project  dependant in all apps and all code
-i give my code check all okey if yes then give this file is okey if not give complete updated that file
-
-now i provide attendance app code also check all okey with above provided code accounts students teachers subjects school_class time_tables
-means must unsure the attendance app will function correctly in your overall project with the other apps (accounts, students, subjects, school_class, time_tables and teachers).
-

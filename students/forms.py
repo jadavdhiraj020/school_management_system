@@ -3,6 +3,8 @@ from .models import Student
 from django.forms import ModelForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Div, ButtonHolder, Submit
+from accounts.models import CustomUser
+
 
 class StudentForm(ModelForm):
     class Meta:
@@ -26,7 +28,11 @@ class StudentForm(ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(StudentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+        # Only show users not already linked to a student
+        self.fields['user'].queryset = CustomUser.objects.filter(
+            student_profile__isnull=True
+        )
         self.helper = FormHelper()
         self.helper.form_class = 'form-horizontal'
         self.helper.label_class = 'col-md-3'

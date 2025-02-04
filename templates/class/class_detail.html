@@ -3,57 +3,57 @@
 {% block title %}Class Detail{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="card shadow-lg">
-    <div class="card-header bg-primary text-white text-center">
-      <h3>{{ class.name }}</h3>
-    </div>
-    <div class="card-body">
-      <!-- Class Information -->
-      <div class="mb-4">
-        <p><strong>Name:</strong> {{ class.name }}</p>
-        <p><strong>Class Teacher:</strong>
-          {% if class.class_teacher %}
-            {{ class.class_teacher.user.get_full_name }}
-          {% else %}
-            Not assigned.
-          {% endif %}
-        </p>
-        <p><strong>Teachers:</strong>
-          {% for teacher in class.teachers.all %}
-            <span class="badge bg-info">
+    <div class="container mt-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white text-center">
+                <h3>{{ class.name }}</h3>
+            </div>
+            <div class="card-body">
+                <!-- Class Information -->
+                <div class="mb-4">
+                    <p><strong>Name:</strong> {{ class.name }}</p>
+                    <p><strong>Class Teacher:</strong>
+                        {% if class.class_teacher %}
+                            {{ class.class_teacher.user.get_full_name }}
+                        {% else %}
+                            Not assigned.
+                        {% endif %}
+                    </p>
+                    <p><strong>Teachers:</strong>
+                        {% for teacher in class.teachers.all %}
+                            <span class="badge bg-info">
               <a href="{% url 'teacher_detail' teacher.id %}" class="text-dark text-decoration-none">
                 {{ teacher.user.get_full_name }}
               </a>
             </span>
-          {% empty %}
-            <span>No teachers assigned.</span>
-          {% endfor %}
-        </p>
-        <p><strong>Subjects:</strong>
-          {% for subject in class.subjects.all %}
-            <span class="badge bg-secondary">
+                        {% empty %}
+                            <span>No teachers assigned.</span>
+                        {% endfor %}
+                    </p>
+                    <p><strong>Subjects:</strong>
+                        {% for subject in class.subjects.all %}
+                            <span class="badge bg-secondary">
               {{ subject.name }}
             </span>
-          {% empty %}
-            <span>No subjects assigned.</span>
-          {% endfor %}
-        </p>
-      </div>
+                        {% empty %}
+                            <span>No subjects assigned.</span>
+                        {% endfor %}
+                    </p>
+                </div>
 
-      <!-- Back and Edit Buttons -->
-      <div class="d-flex justify-content-between">
-        <a href="{% url 'class_list' %}" class="btn btn-outline-primary">Back to List</a>
-        <div>
-          <a href="{% url 'class_update' class.id %}" class="btn btn-warning me-2">
-            <i class="fas fa-edit"></i> Edit
-          </a>
-          <a href="{% url 'class_delete' class.id %}" class="btn btn-danger">
-            <i class="fas fa-trash-alt"></i> Delete
-          </a>
+                <!-- Back and Edit Buttons -->
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'class_list' %}" class="btn btn-outline-primary">Back to List</a>
+                    <div>
+                        <a href="{% url 'class_update' class.id %}" class="btn btn-warning me-2">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'class_delete' class.id %}" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-</div>
 {% endblock %}

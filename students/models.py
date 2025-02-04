@@ -1,15 +1,11 @@
 from django.db import models
-from accounts.models import CustomUser  # Importing CustomUser from users app
+from accounts.models import CustomUser
 from school_class.models import Class
 from subjects.models import Subject
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+
 class Student(models.Model):
-    """
-    Student Model representing students enrolled in school.
-    - Linked with `CustomUser` for authentication.
-    - Linked with `Class` (ForeignKey) and `Subject` (ManyToManyField).
-    """
     user = models.OneToOneField(
         CustomUser,
         on_delete=models.CASCADE,
@@ -47,13 +43,13 @@ class Student(models.Model):
     )
 
     def __str__(self):
-        """Return full name if available, otherwise username."""
         return self.user.get_full_name() or self.user.username
 
     def save(self, *args, **kwargs):
-        """Override save method for data validation and consistency."""
-        self.user.first_name = self.user.first_name.capitalize()
-        self.user.last_name = self.user.last_name.capitalize()
+        # Capitalize and save user names
+        self.user.first_name = self.user.first_name.strip().capitalize()
+        self.user.last_name = self.user.last_name.strip().capitalize()
+        self.user.save()  # Save user changes first
         super().save(*args, **kwargs)
 
     class Meta:

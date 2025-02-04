@@ -1,44 +1,125 @@
-.step-links a {
-  color: blue;
-  text-decoration: underline;
-  margin: 0 5px;
-}
-.step-links .current {
-  font-weight: bold;
+/* Base Styles */
+:root {
+    --sidebar-width: 20vw;
+    --main-content-width: 80vw;
 }
 
-.form-container {
-  margin-top: 50px;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+body {
+    min-height: 100vh;
 }
 
-.form-group label {
-  font-weight: bold;
+/* Sidebar Styles */
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: 250px;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
 }
 
-.form-control {
-  border-radius: 5px;
-  padding: 15px;
-  font-size: 16px;
+.main-content {
+    width: var(--main-content-width);
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.btn-primary {
-  width: 100%;
-  padding: 12px;
-  font-size: 18px;
-  border-radius: 5px;
+.footer {
+    width: var(--main-content-width);
 }
 
-.btn-primary:hover {
-  background-color: #007bff;
-  border-color: #007bff;
+/* Avatar */
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: 500;
 }
 
-.form-error {
-  color: red;
-  font-size: 14px;
-  margin-top: 5px;
+/* Hover Effects */
+.table-hover tr {
+    transition: all 0.2s ease;
+}
+
+.table-hover tr:hover {
+    background-color: #f8f9fa;
+    transform: translateX(4px);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        height: 100vh;
+        z-index: 1000;
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        width: 100vw;
+        margin-left: 0;
+    }
+
+    .footer {
+        width: 100vw;
+    }
+
+    #sidebarToggle {
+        display: block !important;
+    }
+}
+
+/* Dark Mode Overrides */
+.dark-mode .sidebar {
+    background-color: #1a1a1a !important;
+    border-right: 1px solid #2d2d2d;
+}
+
+.dark-mode .card {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark-mode .table {
+    --bs-table-bg: #2d2d2d;
+    --bs-table-striped-bg: #252525;
+    --bs-table-hover-bg: #353535;
+    color: #fff;
+}
+
+
+/* Improved hover effects */
+.nav-link {
+  transition: all 0.3s ease;
+  background: rgba(255,255,255,0.05);
+}
+
+.nav-link:hover {
+  transform: translateX(5px);
+  background: rgba(255,255,255,0.1) !important;
+}
+
+/* Active state highlighting */
+.nav-link.active {
+  background: rgba(255,255,255,0.1) !important;
+  border-left: 4px solid #0d6efd;
+}
+
+/* Better mobile handling */
+@media (max-width: 992px) {
+  #sidebar {
+    z-index: 1000;
+  }
+
+  #sidebar.active {
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  }
 }

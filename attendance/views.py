@@ -1,4 +1,4 @@
-from core.mixins import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
+from core.mixins import RoleRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, FormView
 from django.urls import reverse_lazy
 from django.http import HttpResponse
@@ -6,14 +6,14 @@ from reportlab.pdfgen import canvas
 from .models import Attendance
 from .forms import AttendanceForm, AttendanceReportForm
 
-class AttendanceListView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+class AttendanceListView(RoleRequiredMixin, ListView):
     model = Attendance
     template_name = "attendance/attendance_list.html"
     context_object_name = "attendances"
     ordering = ["-date"]
     permission_required = "attendance.can_view_attendance"
 
-class AttendanceCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AttendanceCreateView(RoleRequiredMixin, CreateView):
     model = Attendance
     form_class = AttendanceForm
     template_name = "attendance/attendance_form.html"
@@ -26,14 +26,14 @@ class AttendanceCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMix
             form.instance.teacher = self.request.user.teacher
         return super().form_valid(form)
 
-class AttendanceUpdateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+class AttendanceUpdateView(RoleRequiredMixin, UpdateView):
     model = Attendance
     form_class = AttendanceForm
     template_name = "attendance/attendance_form.html"
     success_url = reverse_lazy("attendance-list")
     permission_required = "attendance.can_edit_attendance"
 
-class AttendanceReportPDFView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
+class AttendanceReportPDFView(RoleRequiredMixin, FormView):
     template_name = "attendance/attendance_report_form.html"
     form_class = AttendanceReportForm
     permission_required = "attendance.can_view_attendance"

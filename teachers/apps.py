@@ -1,6 +1,9 @@
+# teachers/apps.py
 from django.apps import AppConfig
 
-
 class TeachersConfig(AppConfig):
-    default_auto_field = "django.db.models.BigAutoField"
-    name = "teachers"
+    name = 'teachers'
+
+    def ready(self):
+        # Import the signals module to register signal handlers.
+        import teachers.signals

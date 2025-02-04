@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <h1 class="text-danger">Delete Subject</h1>
     <p>Are you sure you want to delete <strong>{{ subject.name }}</strong>?</p>
-    
+
     <!-- Deletion Form -->
     <form method="post" class="d-inline">
         {% csrf_token %}
@@ -14,7 +14,7 @@
             Yes, Delete
         </button>
     </form>
-    
+
     <!-- Cancel Button -->
     <a href="{% url 'subject_list' %}" class="btn btn-secondary">Cancel</a>
 </div>

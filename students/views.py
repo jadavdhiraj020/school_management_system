@@ -1,28 +1,35 @@
 from core.mixins import RoleRequiredMixin
-from django.views.generic import (
-    ListView,
-    DetailView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-)
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.db.models import Q
 from django.urls import reverse_lazy
 from .models import Student
-from students.forms import StudentForm  # Ensure this import is correct
+from .forms import StudentForm
 
+from django.shortcuts import render
 
-# List View: Display all students
+def home(request):
+    return render(request, 'home.html')
+
 class StudentListView(RoleRequiredMixin, ListView):
     model = Student
     template_name = "students/student_list.html"
     context_object_name = "students"
     paginate_by = 10
-    ordering = ["user__first_name"]
-    allowed_roles = ['admin', 'teacher', 'student']
+    allowed_roles = ['admin', 'teacher', 'student']  # Add appropriate roles
+
+    def get_queryset(self):
+        search_query = self.request.GET.get('name', '')
+        if search_query:
+            return Student.objects.filter(
+                Q(user__first_name__icontains=search_query) |
+                Q(user__last_name__icontains=search_query) |
+                Q(user__username__icontains=search_query)
+            )
+        return Student.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["search_query"] = self.request.GET.get("name", "")
+        context['search_query'] = self.request.GET.get('name', '')
         return context
 
 
@@ -41,6 +48,11 @@ class StudentCreateView(RoleRequiredMixin, CreateView):
     template_name = "students/student_form.html"
     success_url = reverse_lazy("student_list")
     allowed_roles = ['admin']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["message"] = "Students generated and saved successfully."
+        return context
 
 
 # Update View: Edit an existing student

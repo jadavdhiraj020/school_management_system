@@ -61,18 +61,22 @@ class TimetableListView(RoleRequiredMixin, ListView):
 
         timetables = {}
         if context["selected_class"]:
-            entries = Timetable.objects.filter(class_model=context["selected_class"]).select_related("time_slot", "subject", "teacher")
+            entries = Timetable.objects.filter(class_model=context["selected_class"]).select_related("time_slot",
+                                                                                                     "subject",
+                                                                                                     "teacher")
             for day in context["days"]:
                 day_entries = entries.filter(day_of_week=day)
                 timetables[day] = {entry.time_slot.id: entry for entry in day_entries}
         context["timetables"] = timetables
         return context
 
+
 class TimetableDetailView(RoleRequiredMixin, DetailView):
     model = Timetable
     template_name = "time_tables/timetable_detail.html"
     context_object_name = "timetable"
     permission_required = "time_tables.can_view_timetable"
+
 
 class TimetableCreateView(RoleRequiredMixin, CreateView):
     model = Timetable
@@ -81,6 +85,7 @@ class TimetableCreateView(RoleRequiredMixin, CreateView):
     success_url = reverse_lazy("timetable_list")
     permission_required = "time_tables.can_edit_timetable"
 
+
 class TimetableUpdateView(RoleRequiredMixin, UpdateView):
     model = Timetable
     form_class = TimetableForm
@@ -88,12 +93,14 @@ class TimetableUpdateView(RoleRequiredMixin, UpdateView):
     success_url = reverse_lazy("timetable_list")
     permission_required = "time_tables.can_edit_timetable"
 
+
 class TimetableDeleteView(RoleRequiredMixin, DeleteView):
     model = Timetable
     template_name = "time_tables/timetable_confirm_delete.html"
     context_object_name = "timetable"
     success_url = reverse_lazy("timetable_list")
     permission_required = "time_tables.can_edit_timetable"
+
 
 ###############################################
 # CRUD Views for TimeSlot
@@ -105,10 +112,12 @@ class TimeSlotListView(ListView):
     context_object_name = "timeslots"
     ordering = ["start_time"]
 
+
 class TimeSlotDetailView(DetailView):
     model = TimeSlot
     template_name = "time_slot/time_slot_detail.html"
     context_object_name = "timeslot"
+
 
 class TimeSlotCreateView(CreateView):
     model = TimeSlot
@@ -116,11 +125,13 @@ class TimeSlotCreateView(CreateView):
     template_name = "time_slot/time_slot_form.html"
     success_url = reverse_lazy("timeslot_list")
 
+
 class TimeSlotUpdateView(UpdateView):
     model = TimeSlot
     form_class = TimeSlotForm
     template_name = "time_slot/time_slot_form.html"
     success_url = reverse_lazy("timeslot_list")
+
 
 class TimeSlotDeleteView(DeleteView):
     model = TimeSlot
@@ -139,7 +150,7 @@ class TimetableGenerateView(RoleRequiredMixin, TemplateView):
         available_classes = Class.objects.all()
         context["available_classes"] = available_classes
 
-        # Get the target class from GET parameter (if submitted).
+        # Get the target class from GET parameters (if submitted).
         target_class_name = self.request.GET.get("class_name")
         if not target_class_name:
             # If no class selected yet, simply return the form.
@@ -163,23 +174,29 @@ class TimetableGenerateView(RoleRequiredMixin, TemplateView):
             assignments_qs = ClassTeacherSubject.objects.filter(class_obj=cls)
             assignments = []
             for cts in assignments_qs:
-                assignments.append(
-                    {
-                        "subject_id": cts.subject.id,
-                        "teacher_id": cts.teacher.id,
-                        "subject_name": cts.subject.name,
-                        "teacher_name": cts.teacher.name,
-                    }
-                )
-            if len(assignments) != len(lesson_timeslots):
-                context["error"] = (
-                    f"Class {cls.name} has {len(assignments)} assignments but "
-                    f"{len(lesson_timeslots)} lesson slots per day."
-                )
-                return context
+                assignments.append({
+                    "subject_id": cts.subject.id,
+                    "teacher_id": cts.teacher.id,
+                    "subject_name": cts.subject.name,
+                    "teacher_name": cts.teacher.user.username,
+                    # assuming teacher's display name comes from the related user
+                })
+            # If assignments are fewer than lesson slots, append dummy assignments.
+            if len(assignments) < len(lesson_timeslots):
+                dummy_count = len(lesson_timeslots) - len(assignments)
+                for i in range(dummy_count):
+                    assignments.append({
+                        "subject_id": 0,  # Dummy subject id
+                        "teacher_id": 1000000 + i,  # Dummy teacher id (ensure these don't conflict with real ones)
+                        "subject_name": "Free Period",
+                        "teacher_name": "N/A",
+                    })
+            # If there are extra assignments, slice them to match lesson slot count.
+            elif len(assignments) > len(lesson_timeslots):
+                assignments = assignments[:len(lesson_timeslots)]
             class_assignments[cls.id] = assignments
 
-        # Build the CP-SAT model.
+        # Build the CP‑SAT model.
         model = cp_model.CpModel()
         decision_vars = {}
         teacher_vars = {}
@@ -191,16 +208,11 @@ class TimetableGenerateView(RoleRequiredMixin, TemplateView):
             for day in days:
                 day_vars = []
                 for slot_index in range(n_assignments):
-                    var = model.NewIntVar(
-                        0, n_assignments - 1, f"cls{cls.id}_{day}_slot{slot_index}"
-                    )
+                    var = model.NewIntVar(0, n_assignments - 1, f"cls{cls.id}_{day}_slot{slot_index}")
                     decision_vars[(cls.id, day, slot_index)] = var
                     day_vars.append(var)
-                    t_var = model.NewIntVar(
-                        min(teacher_ids_list),
-                        max(teacher_ids_list),
-                        f"cls{cls.id}_{day}_slot{slot_index}_teacher",
-                    )
+                    t_var = model.NewIntVar(min(teacher_ids_list), max(teacher_ids_list),
+                                            f"cls{cls.id}_{day}_slot{slot_index}_teacher")
                     teacher_vars[(cls.id, day, slot_index)] = t_var
                     # Link the decision variable with the teacher ID from the assignment.
                     model.AddElement(var, teacher_ids_list, t_var)
@@ -212,17 +224,14 @@ class TimetableGenerateView(RoleRequiredMixin, TemplateView):
             for slot_index in range(len(lesson_timeslots)):
                 teacher_vars_this_slot = []
                 for cls in classes:
-                    teacher_vars_this_slot.append(
-                        teacher_vars[(cls.id, day, slot_index)]
-                    )
+                    teacher_vars_this_slot.append(teacher_vars[(cls.id, day, slot_index)])
                 model.AddAllDifferent(teacher_vars_this_slot)
 
         solver = cp_model.CpSolver()
         status = solver.Solve(model)
         if status not in [cp_model.OPTIMAL, cp_model.FEASIBLE]:
-            context["error"] = (
-                "No feasible timetable found. Please check class assignments and timeslot configurations."
-            )
+            context[
+                "error"] = "No feasible timetable found. Please check class assignments and timeslot configurations."
             return context
 
         # Build the timetable solution structure.
@@ -241,10 +250,17 @@ class TimetableGenerateView(RoleRequiredMixin, TemplateView):
                         var = decision_vars[(cls.id, day, lesson_counter)]
                         assign_index = solver.Value(var)
                         assignment = class_assignments[cls.id][assign_index]
+                        # Check for a dummy assignment.
+                        if assignment["subject_name"] == "Free Period":
+                            display_text = "Free Period"
+                        else:
+                            display_text = f"{assignment['subject_name']}<br/>{assignment['teacher_name']}"
                         timetable_solution[cls.id][day][ts.id] = {
                             "is_break": False,
-                            "subject": assignment["subject_name"],
-                            "teacher": assignment["teacher_name"],
+                            "subject": assignment["subject_name"] if assignment[
+                                                                         "subject_name"] != "Free Period" else "",
+                            "teacher": assignment["teacher_name"] if assignment["teacher_name"] != "N/A" else "",
+                            "display": display_text,
                         }
                     lesson_counter += 1
 
@@ -257,7 +273,7 @@ class TimetableGenerateView(RoleRequiredMixin, TemplateView):
                     for ts in all_timeslots:
                         cell = timetable_solution[selected_class.id][day].get(ts.id)
                         if cell:
-                            if ts.is_break:
+                            if ts.is_break or cell.get("subject") == "":
                                 Timetable.objects.create(
                                     class_model=selected_class,
                                     time_slot=ts,
@@ -266,18 +282,18 @@ class TimetableGenerateView(RoleRequiredMixin, TemplateView):
                                     teacher=None,
                                 )
                             else:
-                                subject = Subject.objects.filter(
-                                    name=cell["subject"]
-                                ).first()
-                                teacher = Teacher.objects.filter(
-                                    name=cell["teacher"]
-                                ).first()
+                                # Use the subject's name as usual.
+                                subject_obj = Subject.objects.filter(name=cell["subject"]).first()
+                                # For teacher, use the related user's username (change lookup field if needed).
+                                teacher_obj = None
+                                if cell["teacher"] and cell["teacher"] != "N/A":
+                                    teacher_obj = Teacher.objects.filter(user__username=cell["teacher"]).first()
                                 Timetable.objects.create(
                                     class_model=selected_class,
                                     time_slot=ts,
                                     day_of_week=day,
-                                    subject=subject,
-                                    teacher=teacher,
+                                    subject=subject_obj,
+                                    teacher=teacher_obj,
                                 )
         except Exception as e:
             context["error"] = f"An error occurred while saving the timetable: {e}"
@@ -291,7 +307,6 @@ class TimetableGenerateView(RoleRequiredMixin, TemplateView):
         return context
 
 
-
 def add_page_number(canvas_obj, doc):
     """
     Adds the page number at the bottom-right of each page.
@@ -300,6 +315,7 @@ def add_page_number(canvas_obj, doc):
     text = f"Page {page_num}"
     canvas_obj.setFont("Helvetica", 9)
     canvas_obj.drawRightString(doc.pagesize[0] - 40, 20, text)
+
 
 class TimetableDownloadView(RoleRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -313,12 +329,12 @@ class TimetableDownloadView(RoleRequiredMixin, View):
             "day_of_week", "time_slot__start_time"
         )
 
-        # Create a PDF response
+        # Create a PDF response.
         response = HttpResponse(content_type="application/pdf")
         filename = f"timetable_{selected_class.name.replace(' ', '_')}_{now().strftime('%Y%m%d')}.pdf"
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
-        # Create a PDF document with landscape letter size
+        # Create a PDF document with landscape letter size.
         doc = SimpleDocTemplate(
             response,
             pagesize=landscape(letter),
@@ -327,7 +343,7 @@ class TimetableDownloadView(RoleRequiredMixin, View):
         )
         elements = []
 
-        # Custom styles for a professional look
+        # Custom styles for a professional look.
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(
             name='CellText',
@@ -349,25 +365,22 @@ class TimetableDownloadView(RoleRequiredMixin, View):
         elements.append(Paragraph(f"{selected_class.name} Timetable", title_style))
         elements.append(Spacer(1, 12))
 
-        # Prepare the table header
+        # Prepare the table header.
         header = ["Time Slot", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
         data = [header]
 
-        # Map and sort time slots
+        # Map and sort time slots.
         timeslot_ids = sorted({entry.time_slot.id for entry in timetable_qs})
         timeslot_map = {}
         for entry in timetable_qs:
             ts = entry.time_slot
-            timeslot_map[ts.id] = (
-                f"{ts.start_time.strftime('%I:%M %p')} - {ts.end_time.strftime('%I:%M %p')}"
-            )
-
+            timeslot_map[ts.id] = f"{ts.start_time.strftime('%I:%M %p')} - {ts.end_time.strftime('%I:%M %p')}"
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
         schedule = {ts_id: {} for ts_id in timeslot_ids}
         for entry in timetable_qs:
             schedule[entry.time_slot.id][entry.day_of_week] = entry
 
-        # Build table rows for each time slot
+        # Build table rows for each time slot.
         for ts_id in timeslot_ids:
             time_slot = timeslot_map.get(ts_id, "")
             row = [time_slot]
@@ -375,14 +388,14 @@ class TimetableDownloadView(RoleRequiredMixin, View):
                 entry = schedule[ts_id].get(day)
                 if entry:
                     subject = entry.subject.name if entry.subject else ''
-                    teacher = entry.teacher.name if entry.teacher else ''
+                    teacher = entry.teacher.user.username if entry.teacher and hasattr(entry.teacher, 'user') else ''
                     cell_content = f"<b>{subject}</b><br/><i>{teacher}</i>"
                     row.append(cell_content)
                 else:
                     row.append("--")
             data.append(row)
 
-        # Convert each cell to a Paragraph object
+        # Convert each cell to a Paragraph object.
         for i, row in enumerate(data):
             for j, cell in enumerate(row):
                 if i == 0:  # header row
@@ -390,11 +403,11 @@ class TimetableDownloadView(RoleRequiredMixin, View):
                 else:
                     data[i][j] = Paragraph(cell, styles['CellText'])
 
-        # Define column widths for the table
+        # Define column widths for the table.
         col_widths = [doc.width * 0.15] + [doc.width * 0.14] * 6
         table = Table(data, colWidths=col_widths, repeatRows=1)
 
-        # Style the table with alternating row colors and padding
+        # Style the table with alternating row colors and padding.
         table_style = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#3498DB')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -414,9 +427,7 @@ class TimetableDownloadView(RoleRequiredMixin, View):
         table.setStyle(table_style)
         elements.append(table)
 
-        # Build the PDF and add page numbers
+        # Build the PDF and add page numbers.
         doc.build(elements, onFirstPage=add_page_number, onLaterPages=add_page_number)
 
         return response
-
-

@@ -4,68 +4,72 @@
 {% block title %}{% if object %}Update{% else %}Create{% endif %} Class{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center">
-                    <h4>{% if object %}Update{% else %}Create{% endif %} Class</h4>
-                </div>
-                <div class="card-body">
-                    <form method="post" class="needs-validation" novalidate>
-                        {% csrf_token %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-8">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h4>{% if object %}Update{% else %}Create{% endif %} Class</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" class="needs-validation" novalidate>
+                            {% csrf_token %}
 
-                        <!-- Class Name -->
-                        <div class="mb-3">
-                            <label for="{{ form.name.id_for_label }}" class="form-label">Class Name:</label>
-                            {{ form.name|add_class:"form-control" }}
-                            <small class="form-text text-muted">Enter the name of the class (e.g., 10th Grade A).</small>
-                        </div>
+                            <!-- Class Name -->
+                            <div class="mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Class Name:</label>
+                                {{ form.name|add_class:"form-control" }}
+                                <small class="form-text text-muted">Enter the name of the class (e.g., 10th Grade
+                                    A).</small>
+                            </div>
 
-                        <!-- Class Teacher -->
-                        <div class="mb-3">
-                            <label for="{{ form.class_teacher.id_for_label }}" class="form-label">Class Teacher:</label>
-                            {{ form.class_teacher|add_class:"form-control" }}
-                            <small class="form-text text-muted">Select the teacher managing this class.</small>
-                        </div>
+                            <!-- Class Teacher -->
+                            <div class="mb-3">
+                                <label for="{{ form.class_teacher.id_for_label }}" class="form-label">Class
+                                    Teacher:</label>
+                                {{ form.class_teacher|add_class:"form-control" }}
+                                <small class="form-text text-muted">Select the teacher managing this class.</small>
+                            </div>
 
-                        <!-- Teachers -->
-                        <div class="mb-3">
-                            <label class="form-label">Teachers:</label>
-                            {{ form.teachers }}
-                            <small class="form-text text-muted">Select teachers teaching this class.</small>
-                        </div>
+                            <!-- Teachers -->
+                            <div class="mb-3">
+                                <label class="form-label">Teachers:</label>
+                                {{ form.teachers|add_class:"form-control" }}
+                                <small class="form-text text-muted">Select teachers teaching this class.</small>
+                            </div>
 
-                        <!-- Subjects -->
-                        <div class="mb-3">
-                            <label class="form-label">Subjects:</label>
-                            {{ form.subjects }}
-                            <small class="form-text text-muted">Select subjects offered in this class.</small>
-                        </div>
+                            <!-- Subjects -->
+                            <div class="mb-3">
+                                <label class="form-label">Subjects:</label>
+                                {{ form.subjects|add_class:"form-control" }}
+                                <small class="form-text text-muted">Select subjects offered in this class.</small>
+                            </div>
 
-                        <div class="d-flex justify-content-between mt-4">
-                            <button type="submit" class="btn btn-success w-48">
-                                {% if object %}Update{% else %}Create{% endif %} Class
-                            </button>
-                            <a href="{% url 'class_list' %}" class="btn btn-secondary w-48">Cancel</a>
-                        </div>
-                    </form>
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="submit" class="btn btn-success w-48">
+                                    {% if object %}Update{% else %}Create{% endif %} Class
+                                </button>
+                                <a href="{% url 'class_list' %}" class="btn btn-secondary w-48">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block head %}
-<style>
-    /* Custom styles for form fields */
-    .form-control[name="name"] {
-        height: 40px;  
-    }
-    .form-control[name="class_teacher"] {
-        height: 55px;  
-    }
-    /* Adjust the display of CheckboxSelectMultiple widgets if needed */
-</style>
+    <style>
+        /* Custom styles for form fields */
+        .form-control[name="name"] {
+            height: 40px;
+        }
+
+        .form-control[name="class_teacher"] {
+            height: 55px;
+        }
+
+        /* Adjust the display of CheckboxSelectMultiple widgets if needed */
+    </style>
 {% endblock %}

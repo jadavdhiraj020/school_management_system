@@ -31,8 +31,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         number = options["number"]
-        min_age = options["min-age"]
-        max_age = options["max-age"]
+        min_age = options["min_age"]
+        max_age = options["max_age"]
 
         if min_age > max_age:
             self.stdout.write(self.style.ERROR("Minimum age cannot be greater than maximum age."))

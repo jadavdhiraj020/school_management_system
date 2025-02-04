@@ -1,19 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h3 class="text-center">Logout</h3>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3><i class="fas fa-sign-out-alt"></i> Logout</h3>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center">You have been logged out.</h4>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'login' %}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login again
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-          <h4 class="text-center">You have been logged out.</h4>
-          <div class="text-center mt-3">
-            <a href="{% url 'login' %}" class="btn btn-primary">Login again</a>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 {% endblock %}

@@ -4,102 +4,96 @@
 {% block title %}Timetable List{% endblock %}
 
 {% block extra_css %}
-  <style>
+<style>
     .table tbody tr td:first-child {
-      background-color: #f0f8ff;
-      font-weight: bold;
+        background-color: #f0f8ff;
+        font-weight: bold;
     }
     .all_days {
-      background-color: #f0f8ff !important;
-      font-weight: bold !important;
+        background-color: #f0f8ff !important;
+        font-weight: bold !important;
     }
     .form-container {
-      margin: 20px 0;
+        margin: 20px 0;
     }
-  </style>
+</style>
 {% endblock %}
 
 {% block content %}
-  <h2 class="text-center text-primary mb-3">Class Timetables</h2>
+<h2 class="text-center text-primary mb-3">Class Timetables</h2>
 
-  <!-- Class Selection Form -->
-  <div class="form-container">
+<!-- Class Selection Form -->
+<div class="form-container">
     <form method="get" action="{% url 'timetable_list' %}">
-      <div class="form-group row justify-content-center">
-        <label for="class_name" class="col-sm-2 col-form-label">Select Class:</label>
-        <div class="col-sm-4">
-          <select name="class_name" id="class_name" class="form-control">
-            {% for cls in available_classes %}
-              <option value="{{ cls.name }}" {% if selected_class and selected_class.name == cls.name %}selected{% endif %}>
-                {{ cls.name }}
-              </option>
-            {% endfor %}
-          </select>
+        <div class="form-group row justify-content-center">
+            <label for="class_name" class="col-sm-2 col-form-label">Select Class:</label>
+            <div class="col-sm-4">
+                <select name="class_name" id="class_name" class="form-control">
+                    {% for cls in available_classes %}
+                        <option value="{{ cls.name }}" {% if selected_class and selected_class.name == cls.name %}selected{% endif %}>
+                            {{ cls.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-primary">Show Timetable</button>
+            </div>
         </div>
-        <div class="col-sm-2">
-          <button type="submit" class="btn btn-primary">Show Timetable</button>
-        </div>
-      </div>
     </form>
-  </div>
+</div>
 
-  {% if selected_class %}
+{% if selected_class %}
     <!-- Timetable Grid -->
     <div class="table-responsive mt-3">
-      <table class="table table-bordered table-hover shadow-sm">
-        <thead class="thead-dark">
-          <tr>
-            <th class="align-middle text-center">Time Slot</th>
-            {% for day in days %}
-              <th class="text-center align-middle all_days py-3">{{ day }}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for ts in timeslots %}
-            <tr>
-              <td class="text-center align-middle">
-                {{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }}
-                {% if ts.is_break %}
-                  <br><small class="text-muted">Break</small>
-                {% endif %}
-              </td>
-              {% if ts.is_break %}
-                <td colspan="{{ days|length }}" class="text-center text-muted align-middle">
-                  Break ({{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }})
-                </td>
-              {% else %}
-                {% for day in days %}
-                  <td class="text-center align-middle">
-                    {% with timetable_entry=timetables|get_item:day %}
-                      {% with cell=timetable_entry|get_item:ts.id %}
-                        {% if cell %}
-                          <div class="text-primary font-weight-bold">{{ cell.subject.name }}</div>
-                          <div class="text-secondary">
-                            <small>{{ cell.teacher.user.get_full_name }}</small>
-                          </div>
-                        {% else %}
-                          <span class="text-muted">--</span>
-                        {% endif %}
-                      {% endwith %}
-                    {% endwith %}
-                  </td>
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="align-middle text-center">Time Slot</th>
+                    {% for day in days %}
+                        <th class="text-center align-middle all_days py-3">{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for ts in timeslots %}
+                    <tr>
+                        <td class="text-center align-middle">
+                            {{ ts.start_time|time:"h:i A" }} - {{ ts.end_time|time:"h:i A" }}
+                            {% if ts.is_break %}
+                                <br><small class="text-muted">Break</small>
+                            {% endif %}
+                        </td>
+                        {% for day in days %}
+                            <td class="text-center align-middle">
+                                {% with timetable_entry=timetables|get_item:day %}
+                                    {% with cell=timetable_entry|get_item:ts.id %}
+                                        {% if cell %}
+                                            <div class="text-primary font-weight-bold">{{ cell.subject.name }}</div>
+                                            <div class="text-secondary">
+                                                <small>{{ cell.teacher.user.get_full_name }}</small>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">--</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endwith %}
+                            </td>
+                        {% endfor %}
+                    </tr>
                 {% endfor %}
-              {% endif %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+            </tbody>
+        </table>
     </div>
 
     <!-- Download Button -->
     <div class="row mt-4">
-      <div class="col text-center">
-        <a href="{% url 'timetable_download' %}?class_name={{ selected_class.name }}"
-           class="btn btn-outline-primary btn-lg">
-          <i class="fas fa-download"></i> Download Timetable
-        </a>
-      </div>
+        <div class="col text-center">
+            <a href="{% url 'timetable_download' %}?class_name={{ selected_class.name }}"
+               class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-download"></i> Download Timetable
+            </a>
+        </div>
     </div>
-  {% endif %}
+{% endif %}
 {% endblock %}

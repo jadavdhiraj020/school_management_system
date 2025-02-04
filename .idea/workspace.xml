@@ -4,45 +4,63 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0fe56e6a-2fbc-41ef-af96-0df36a93f81f" name="Changes" comment="Working added CBVs Protect view using Mixin">
+    <list default="true" id="0fe56e6a-2fbc-41ef-af96-0df36a93f81f" name="Changes" comment="changes by chatgpt">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/e07641fd-fdaa-457b-b1fe-5f61d66a87d2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/e07641fd-fdaa-457b-b1fe-5f61d66a87d2.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/school_management_system.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/school_management_system.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/accounts/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/accounts/apps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/accounts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/accounts/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/all_admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/all_generate.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/all_models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/all_urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/all_views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/attendance/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/attendance/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/attendance/management/commands/generate_attendance.py" beforeDir="false" afterPath="$PROJECT_DIR$/attendance/management/commands/generate_attendance.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mixins.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/mixins.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/for_generate_scripts.txt" beforeDir="false" afterPath="$PROJECT_DIR$/for_generate_scripts.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/school_class/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/school_class/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/school_class/management/commands/generate_class.py" beforeDir="false" afterPath="$PROJECT_DIR$/school_class/management/commands/generate_class.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/school_class/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/school_class/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/students.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/students/management/commands/generate_students.py" beforeDir="false" afterPath="$PROJECT_DIR$/students/management/commands/generate_students.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/accounts/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/accounts/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/attendance/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/attendance/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/for_generate_scripts.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_python.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/school_management/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/school_management/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/students/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/students/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/students/management/commands/delete_all_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/students/management/commands/delete_all_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/students/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/students/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/students/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/students/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/students/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/students/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/subjects/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/subjects/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/subjects/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/subjects/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/subjects/management/commands/generate_subjects.py" beforeDir="false" afterPath="$PROJECT_DIR$/subjects/management/commands/generate_subjects.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/subjects/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/subjects/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/subjects/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/subjects/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teachers/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/teachers/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/teachers/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/teachers/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/teachers/apps.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teachers/management/commands/generate_teachers.py" beforeDir="false" afterPath="$PROJECT_DIR$/teachers/management/commands/generate_teachers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/teachers/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/teachers/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/teachers/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/teachers/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/accounts/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/accounts/logout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/logout.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/accounts/register.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/register.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/attendance/attendance_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/attendance/attendance_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/attendance/attendance_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/attendance/attendance_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/attendance/attendance_report_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/attendance/attendance_report_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/class/class_confirm_delete.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/class/class_confirm_delete.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/class/class_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/class/class_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/class/class_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/class/class_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/class/class_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/class/class_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/navbar.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/navbar.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/student_confirm_delete.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/student_confirm_delete.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/student_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/student_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/student_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/student_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/student_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/student_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/subjects/subject_confirm_delete.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/subjects/subject_confirm_delete.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/subjects/subject_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/subjects/subject_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/subjects/subject_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/subjects/subject_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/subjects/subject_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/subjects/subject_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_confirm_delete.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_confirm_delete.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_form.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/time_slot/time_slot_confirm_delete.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/time_slot/time_slot_confirm_delete.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/time_slot/time_slot_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/time_slot/time_slot_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/time_slot/time_slot_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/time_slot/time_slot_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/time_slot/time_slot_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/time_slot/time_slot_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/time_tables/timetable_confirm_delete.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/time_tables/timetable_confirm_delete.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/time_tables/timetable_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/time_tables/timetable_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/time_tables/timetable_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/time_tables/timetable_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/time_tables/timetable_generate.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/time_tables/timetable_generate.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/time_tables/timetable_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/time_tables/timetable_list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/time_tables/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/time_tables/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/time_tables/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/time_tables/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/time_tables/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/time_tables/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/time_tables/froms.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/time_tables/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/time_tables/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -57,6 +75,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="CSS File" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -87,30 +107,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
-    &quot;Django Server.school_management_system.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
-    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/jadav/Coding/DJANGO/school_management_system&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Django Server.school_management_system.executor": "Run",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
+    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/jadav/Coding/DJANGO/school_management_system",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\jadav\Coding\DJANGO\school_management_system" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\jadav\Coding\DJANGO\school_management_system\static\images" />
     </key>
   </component>
   <component name="RunManager">
@@ -162,7 +187,12 @@
       <workItem from="1738641523416" duration="3875000" />
       <workItem from="1738645525210" duration="117000" />
       <workItem from="1738645667333" duration="2161000" />
-      <workItem from="1738664771362" duration="3760000" />
+      <workItem from="1738664771362" duration="5256000" />
+      <workItem from="1738670269891" duration="2685000" />
+      <workItem from="1738673113022" duration="4537000" />
+      <workItem from="1738682955554" duration="9749000" />
+      <workItem from="1738696351936" duration="2213000" />
+      <workItem from="1738699069407" duration="11785000" />
     </task>
     <task id="LOCAL-00001" summary="Working but add views properly">
       <option name="closed" value="true" />
@@ -188,7 +218,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738570418940</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="changes by chatgpt">
+      <option name="closed" value="true" />
+      <created>1738668630118</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1738668630120</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -208,6 +246,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Working but add views properly" />
     <MESSAGE value="Working added CBVs Protect view using Mixin" />
-    <option name="LAST_COMMIT_MESSAGE" value="Working added CBVs Protect view using Mixin" />
+    <MESSAGE value="changes by chatgpt" />
+    <option name="LAST_COMMIT_MESSAGE" value="changes by chatgpt" />
   </component>
 </project>

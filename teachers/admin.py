@@ -1,7 +1,5 @@
 from django.contrib import admin
-from django.contrib.contenttypes.models import ContentType
 from teachers.models import Teacher
-from django.contrib.auth.models import Permission
 
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ('get_full_name', 'get_email', 'subject_list', 'phone', 'address')
@@ -23,20 +21,3 @@ class TeacherAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return request.user.role == 'admin'
-
-admin.site.register(Teacher, TeacherAdmin)
-
-# Adding custom permissions (if needed for future control)
-def add_permissions():
-    Permission.objects.get_or_create(
-        codename='can_assign_teacher',
-        name='Can assign teacher to class',
-        content_type=ContentType.objects.get_for_model(Teacher),
-    )
-    Permission.objects.get_or_create(
-        codename='can_view_teacher',
-        name='Can view teacher details',
-        content_type=ContentType.objects.get_for_model(Teacher),
-    )
-
-add_permissions()

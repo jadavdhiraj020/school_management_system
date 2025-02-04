@@ -3,37 +3,37 @@
 {% block title %}Teacher Detail{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h1 class="display-4 text-center">{{ teacher.user.get_full_name }}</h1>
+<div class="container mt-5">
+    <h1 class="display-4 text-center">{{ teacher.user.get_full_name }}</h1>
 
-        <!-- Teacher Info -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <p><strong>Email:</strong> {{ teacher.user.email }}</p>
-                <p><strong>Age:</strong> {{ teacher.age }}</p>
-                <p><strong>Phone:</strong> {{ teacher.phone }}</p>
-                <p><strong>Joining Date:</strong> {{ teacher.joining_date }}</p>
-            </div>
-            <div class="col-md-6">
-                <p><strong>Address:</strong> {{ teacher.address }}</p>
-            </div>
+    <!-- Teacher Info -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <p><strong>Email:</strong> {{ teacher.user.email }}</p>
+            <p><strong>Age:</strong> {{ teacher.age }}</p>
+            <p><strong>Phone:</strong> {{ teacher.phone }}</p>
+            <p><strong>Joining Date:</strong> {{ teacher.joining_date }}</p>
         </div>
-
-        <!-- Subjects Taught -->
-        {% if teacher.subject.all %}
-            <p><strong>Subjects Taught:</strong></p>
-            <ul>
-                {% for subj in teacher.subject.all %}
-                    <li>{{ subj.name }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-
-        <!-- Back Button -->
-        <div class="text-center">
-            <a href="{% url 'teacher_list' %}" class="btn btn-primary btn-lg">
-                <i class="fas fa-arrow-left"></i> Back to List
-            </a>
+        <div class="col-md-6">
+            <p><strong>Address:</strong> {{ teacher.address }}</p>
         </div>
     </div>
+
+    <!-- Subjects Taught -->
+    {% if teacher.subject.all %}
+        <p><strong>Subjects Taught:</strong></p>
+        <ul>
+            {% for subj in teacher.subject.all %}
+                <li>{{ subj.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="text-center">
+        <a href="{% url 'teacher_list' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
 {% endblock %}

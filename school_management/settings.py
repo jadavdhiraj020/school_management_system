@@ -18,8 +18,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # settings.py
 LOGIN_URL = '/accounts/login/'
-REDIRECT_URL = 'student_list'
+LOGIN_REDIRECT_URL = 'student_list'
 LOGOUT_REDIRECT_URL = 'login'
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -45,15 +46,17 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # new added
-    "accounts",
-    "students",
-    "teachers",
-    "school_class",
-    "subjects",
-    "time_tables",
-    "attendance",
+    "accounts.apps.AccountsConfig",
+    "students.apps.StudentsConfig",
+    "teachers.apps.TeachersConfig",
+    "school_class.apps.SchoolClassConfig",
+    "subjects.apps.SubjectsConfig",
+    "time_tables.apps.TimeTablesConfig",
+    "attendance.apps.AttendanceConfig",
     "crispy_forms",
 ]
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"  # or 'bootstrap5' if you prefer
 
@@ -75,7 +78,7 @@ ROOT_URLCONF = "school_management.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR, "templates"],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
