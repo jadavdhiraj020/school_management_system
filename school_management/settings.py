@@ -17,8 +17,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # settings.py
-
-LOGIN_REDIRECT_URL = 'student_list'
+LOGIN_URL = '/accounts/login/'
+REDIRECT_URL = 'student_list'
 LOGOUT_REDIRECT_URL = 'login'
 
 
@@ -26,12 +26,13 @@ LOGOUT_REDIRECT_URL = 'login'
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-*(java6@7(v@t_229^r19pacs1w44o_9b$*j@@xk--cpsbsiu6"
+import os
+SECRET_KEY = os.environ.get('SECRET_KEY')
+ALLOWED_HOSTS=["*"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     "subjects",
     "time_tables",
     "attendance",
+    "crispy_forms",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"  # or 'bootstrap5' if you prefer
@@ -64,6 +66,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# Message storage settings (optional)
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 ROOT_URLCONF = "school_management.urls"
 
@@ -92,11 +97,11 @@ WSGI_APPLICATION = "school_management.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "SCHOOL_MANAGEMENT_DATABASE",
-        "USER": "dhiraj",  # or 'dhiraj' if you created a new user
-        "PASSWORD": "new@1235",
-        "HOST": "localhost",
-        "PORT": "3306",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT"),
     }
 }
 

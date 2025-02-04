@@ -6,7 +6,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('', lambda request: redirect('students/', permanent=True)),
     path('accounts/', include('accounts.urls')),
-    path('attendance/', include('accounts.urls')),
+    path('attendance/', include('attendance.urls')),
     path("students/", include("students.urls")),
     path("teachers/", include("teachers.urls")),
     path("classes/", include("school_class.urls")),

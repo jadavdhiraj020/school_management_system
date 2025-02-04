@@ -1,5 +1,5 @@
 # views.py
-from common.mixin import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
+from core.mixins import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,

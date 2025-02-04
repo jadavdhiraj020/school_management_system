@@ -1,4 +1,4 @@
-from common.mixins import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
+from core.mixins import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, FormView
 from django.urls import reverse_lazy
 from django.http import HttpResponse

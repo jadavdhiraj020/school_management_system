@@ -1,26 +1,23 @@
-# accounts/admin.py
-
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
-from .models import Profile
+from .models import CustomUser
 
-class ProfileInline(admin.StackedInline):
-    model = Profile
-    can_delete = False
-    verbose_name_plural = 'Profile'
+@admin.register(CustomUser)
+class CustomUserAdmin(BaseUserAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name', 'role', 'is_staff')
+    search_fields = ('username', 'email', 'role')
+    list_filter = ('role', 'is_staff', 'is_superuser', 'is_active')
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Personal Info', {'fields': ('first_name', 'last_name', 'email')}),
+        ('Roles & Permissions', {'fields': ('role', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Important Dates', {'fields': ('last_login', 'date_joined')}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'role', 'password1', 'password2'),
+        }),
+    )
+    ordering = ('username',)
 
-class UserAdmin(BaseUserAdmin):
-    inlines = (ProfileInline, )
-    list_display = ('username', 'email', 'first_name', 'last_name', 'get_role', 'is_staff')
-
-    def get_role(self, obj):
-        return obj.profile.role if hasattr(obj, 'profile') else None
-    get_role.short_description = 'Role'
-
-# Unregister the original User admin and register the new one
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
-
-# Optionally, also register the Profile model separately
-admin.site.register(Profile)

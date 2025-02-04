@@ -3,7 +3,6 @@ from .models import Subject, ClassTeacherSubject
 from school_class.models import Class
 from teachers.models import Teacher
 
-
 class SubjectForm(forms.ModelForm):
     classes = forms.ModelMultipleChoiceField(
         queryset=Class.objects.all(),

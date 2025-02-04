@@ -27,7 +27,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.pdfgen import canvas
 
 # Local App Imports
-from common.mixin import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
+from core.mixins import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
 from .models import Timetable, TimeSlot
 from .forms import TimetableForm, TimeSlotForm
 from teachers.models import Teacher

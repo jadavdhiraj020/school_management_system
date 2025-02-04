@@ -1,16 +1,14 @@
-# accounts/models.py
-
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth.models import User
 
-class Profile(models.Model):
-    ROLE_CHOICES = (
-        ('Admin', 'Admin'),
-        ('Teacher', 'Teacher'),
-        ('Student', 'Student'),
+class CustomUser(AbstractUser):
+    ROLES = (
+        ('admin', 'Admin'),
+        ('teacher', 'Teacher'),
+        ('student', 'Student'),
     )
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=7, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=20, choices=ROLES, default='student')
+    phone = models.CharField(max_length=20, blank=True)
 
     def __str__(self):
-        return f"{self.user.username} Profile"
+        return f"{self.username} ({self.role})"

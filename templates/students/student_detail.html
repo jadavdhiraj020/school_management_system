@@ -4,12 +4,12 @@
 
 {% block content %}
 <div class="container mt-5">
-  <h1 class="display-4">{{ student.name }}</h1>
-  
+  <h1 class="display-4">{{ student.user.get_full_name }}</h1>
+
   <!-- Student Info -->
   <div class="row mb-3">
     <div class="col-md-6">
-      <p><strong>Email:</strong> {{ student.email }}</p>
+      <p><strong>Email:</strong> {{ student.user.email }}</p>
       <p><strong>Age:</strong> {{ student.age }}</p>
       <p><strong>Phone:</strong> {{ student.phone }}</p>
     </div>

@@ -1,4 +1,4 @@
-from common.mixin import CustomLoginRequiredMixin, CustomPermissionRequiredMixin
+from core.mixins import RoleRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
@@ -12,20 +12,25 @@ from .models import Subject, ClassTeacherSubject
 from .forms import SubjectForm
 
 
-class SubjectListView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+class SubjectListView(RoleRequiredMixin, ListView):
     model = Subject
     template_name = "subjects/subject_list.html"
     context_object_name = "subjects"
     ordering = ["name"]
 
+    # Apply permissions if needed (check Role here)
+    def get_queryset(self):
+        # Add permissions or filter based on roles if necessary
+        return Subject.objects.all()
 
-class SubjectDetailView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DetailView):
+
+class SubjectDetailView(RoleRequiredMixin, DetailView):
     model = Subject
     template_name = "subjects/subject_detail.html"
     context_object_name = "subject"
 
 
-class SubjectCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class SubjectCreateView(RoleRequiredMixin, CreateView):
     model = Subject
     form_class = SubjectForm
     template_name = "subjects/subject_form.html"
@@ -34,6 +39,7 @@ class SubjectCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin,
     def form_valid(self, form):
         try:
             with transaction.atomic():
+                # Save the subject and related data
                 response = super().form_valid(form)
                 self.save_related(form)
                 return response
@@ -42,6 +48,7 @@ class SubjectCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin,
             return self.form_invalid(form)
 
     def save_related(self, form):
+        # Retrieve classes and teachers from form data
         classes = form.cleaned_data.get('classes')
         teachers = form.cleaned_data.get('teachers')
         subject = self.object
@@ -56,7 +63,7 @@ class SubjectCreateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin,
                 )
 
 
-class SubjectUpdateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+class SubjectUpdateView(RoleRequiredMixin, UpdateView):
     model = Subject
     form_class = SubjectForm
     template_name = "subjects/subject_form.html"
@@ -73,11 +80,12 @@ class SubjectUpdateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin,
             return self.form_invalid(form)
 
     def save_related(self, form):
+        # Retrieve classes and teachers from form data
         classes = form.cleaned_data.get('classes')
         teachers = form.cleaned_data.get('teachers')
         subject = self.object
 
-        # Remove existing relationships
+        # Remove existing relationships and re-create new ones
         ClassTeacherSubject.objects.filter(subject=subject).delete()
 
         # Create new ClassTeacherSubject entries
@@ -90,7 +98,7 @@ class SubjectUpdateView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin,
                 )
 
 
-class SubjectDeleteView(CustomLoginRequiredMixin, CustomPermissionRequiredMixin, DeleteView):
+class SubjectDeleteView(RoleRequiredMixin, DeleteView):
     model = Subject
     template_name = "subjects/subject_confirm_delete.html"
     context_object_name = "subject"
