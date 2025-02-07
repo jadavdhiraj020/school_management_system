@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .error-container {
+            margin-top: 10%;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container error-container text-center">
+        <div class="alert alert-warning d-inline-block p-5" role="alert">
+            <i class="fa-solid fa-{{ error_icon }} fa-4x mb-3"></i>
+            <h1 class="display-4">{{ error_title }}</h1>
+            <p class="lead">{{ error_message }}</p>
+            <hr>
+            <a href="{% url 'home' %}" class="btn btn-primary">
+                <i class="fa-solid fa-house"></i> Return Home
+            </a>
+        </div>
+    </div>
+{% endblock %}

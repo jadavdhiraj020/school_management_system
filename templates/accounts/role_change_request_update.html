@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Review Role Change Request</h2>
+  <p>User: {{ object.user.username }}</p>
+  <p>Current Role: {{ object.user.role }}</p>
+  <p>Requested Role: {{ object.requested_role }}</p>
+  <p>Current Status: {{ object.status }}</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Submit</button>
+  </form>
+{% endblock %}
